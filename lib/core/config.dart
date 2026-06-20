@@ -10,19 +10,18 @@ class IceServer {
   bool get isTurn => url.startsWith('turn:') || url.startsWith('turns:');
 
   Map<String, dynamic> toWebRtc() => {
-        'urls': url,
-        if (username != null) 'username': username,
-        if (credential != null) 'credential': credential,
-      };
+    'urls': url,
+    if (username != null) 'username': username,
+    if (credential != null) 'credential': credential,
+  };
 }
 
-const defaultIceServers = [
-  IceServer(url: 'stun:stun.l.google.com:19302'),
-];
+const defaultIceServers = [IceServer(url: 'stun:stun.l.google.com:19302')];
 
 class AppConfig {
   const AppConfig({
     this.themeMode = .system,
+    this.themeSchemeId = 'violet',
     this.iceServers = defaultIceServers,
     this.lanDiscovery = true,
     this.dhtDiscovery = true,
@@ -30,6 +29,7 @@ class AppConfig {
   });
 
   final ThemeMode themeMode;
+  final String themeSchemeId;
   final List<IceServer> iceServers;
   final bool lanDiscovery;
   final bool dhtDiscovery;
@@ -37,16 +37,17 @@ class AppConfig {
 
   AppConfig copyWith({
     ThemeMode? themeMode,
+    String? themeSchemeId,
     List<IceServer>? iceServers,
     bool? lanDiscovery,
     bool? dhtDiscovery,
     bool? syncInBackground,
-  }) =>
-      AppConfig(
-        themeMode: themeMode ?? this.themeMode,
-        iceServers: iceServers ?? this.iceServers,
-        lanDiscovery: lanDiscovery ?? this.lanDiscovery,
-        dhtDiscovery: dhtDiscovery ?? this.dhtDiscovery,
-        syncInBackground: syncInBackground ?? this.syncInBackground,
-      );
+  }) => AppConfig(
+    themeMode: themeMode ?? this.themeMode,
+    themeSchemeId: themeSchemeId ?? this.themeSchemeId,
+    iceServers: iceServers ?? this.iceServers,
+    lanDiscovery: lanDiscovery ?? this.lanDiscovery,
+    dhtDiscovery: dhtDiscovery ?? this.dhtDiscovery,
+    syncInBackground: syncInBackground ?? this.syncInBackground,
+  );
 }

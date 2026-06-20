@@ -15,10 +15,13 @@ import 'identity_provider.dart';
 
 final foldersProvider =
     AsyncNotifierProvider<FoldersNotifier, List<FolderConfig>>(
-        FoldersNotifier.new);
+      FoldersNotifier.new,
+    );
 
-final folderFileCountProvider =
-    FutureProvider.family<int, String>((ref, folderId) async {
+final folderFileCountProvider = FutureProvider.family<int, String>((
+  ref,
+  folderId,
+) async {
   final database = await ref.read(databaseProvider.future);
   final entries = await FolderIndex(database, folderId).all();
   return entries.where((entry) => !entry.meta.deleted).length;
@@ -37,41 +40,53 @@ class FoldersNotifier extends AsyncNotifier<List<FolderConfig>> {
     ];
   }
 
-  Future<void> add(String path) async {
+  Future<bool> add(String path) async {
+    final normalizedPath = p.normalize(p.absolute(path));
+    final existing = [...?state.value];
+    if (existing.any(
+      (folder) => p.normalize(p.absolute(folder.localPath)) == normalizedPath,
+    )) {
+      return false;
+    }
+
     final folder = FolderConfig(
       id: DateTime.now().microsecondsSinceEpoch.toRadixString(36),
-      label: p.basename(path),
-      localPath: path,
+      label: p.basename(normalizedPath),
+      localPath: normalizedPath,
       swarmSecret: newSwarmSecret(),
     );
-    await _persist([...?state.value, folder]);
+    await _persist([...existing, folder]);
     await scan(folder);
+    return true;
   }
 
   Future<void> remove(String id) async =>
       _persist([...?state.value]..removeWhere((folder) => folder.id == id));
 
   FolderShare shareOf(FolderConfig folder) => FolderShare(
-        folderId: folder.id,
-        label: folder.label,
-        swarmSecret: folder.swarmSecret,
-      );
+    folderId: folder.id,
+    label: folder.label,
+    swarmSecret: folder.swarmSecret,
+  );
 
   Future<void> addPeer(String folderId, String peerId) async => _persist([
-        for (final folder in [...?state.value])
-          folder.id == folderId && !folder.peerIds.contains(peerId)
-              ? FolderConfig(
-                  id: folder.id,
-                  label: folder.label,
-                  localPath: folder.localPath,
-                  swarmSecret: folder.swarmSecret,
-                  peerIds: [...folder.peerIds, peerId],
-                )
-              : folder,
-      ]);
+    for (final folder in [...?state.value])
+      folder.id == folderId && !folder.peerIds.contains(peerId)
+          ? FolderConfig(
+              id: folder.id,
+              label: folder.label,
+              localPath: folder.localPath,
+              swarmSecret: folder.swarmSecret,
+              peerIds: [...folder.peerIds, peerId],
+            )
+          : folder,
+  ]);
 
   Future<void> acceptShare(
-      FolderShare share, String localPath, String peerId) async {
+    FolderShare share,
+    String localPath,
+    String peerId,
+  ) async {
     final existing = [...?state.value];
     if (existing.any((folder) => folder.id == share.folderId)) {
       await addPeer(share.folderId, peerId);
@@ -107,18 +122,18 @@ class FoldersNotifier extends AsyncNotifier<List<FolderConfig>> {
   }
 
   Map<String, Object?> _toMap(FolderConfig folder) => {
-        'id': folder.id,
-        'label': folder.label,
-        'path': folder.localPath,
-        'swarm': base64Encode(folder.swarmSecret),
-        'peers': folder.peerIds,
-      };
+    'id': folder.id,
+    'label': folder.label,
+    'path': folder.localPath,
+    'swarm': base64Encode(folder.swarmSecret),
+    'peers': folder.peerIds,
+  };
 
   FolderConfig _fromMap(Map<String, Object?> map) => FolderConfig(
-        id: map['id'] as String,
-        label: map['label'] as String,
-        localPath: map['path'] as String,
-        swarmSecret: base64Decode(map['swarm'] as String),
-        peerIds: (map['peers'] as List?)?.cast<String>() ?? const [],
-      );
+    id: map['id'] as String,
+    label: map['label'] as String,
+    localPath: map['path'] as String,
+    swarmSecret: base64Decode(map['swarm'] as String),
+    peerIds: (map['peers'] as List?)?.cast<String>() ?? const [],
+  );
 }

@@ -1,6 +1,7 @@
 import 'package:declar_ui/declar_ui.dart';
 
 import '../../core/config.dart';
+import 'expressive.dart';
 
 Future<IceServer?> showIceServerDialog(BuildContext context) {
   final url = TextEditingController();
@@ -13,8 +14,9 @@ Future<IceServer?> showIceServerDialog(BuildContext context) {
     return IceServer(
       url: value,
       username: username.text.trim().isEmpty ? null : username.text.trim(),
-      credential:
-          credential.text.trim().isEmpty ? null : credential.text.trim(),
+      credential: credential.text.trim().isEmpty
+          ? null
+          : credential.text.trim(),
     );
   }
 
@@ -22,28 +24,34 @@ Future<IceServer?> showIceServerDialog(BuildContext context) {
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('STUN / TURN server'),
-      content: Column(
-        mainAxisSize: .min,
-        children: [
-          TextField(
-            controller: url,
-            autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'URL',
-              hintText: 'stun:host:3478',
-            ),
+      content: SingleChildScrollView(
+        child: ExpressiveReveal(
+          child: Column(
+            mainAxisSize: .min,
+            children: [
+              TextField(
+                controller: url,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'URL',
+                  hintText: 'stun:host:3478',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: username,
+                decoration: const InputDecoration(labelText: 'Username (TURN)'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: credential,
+                decoration: const InputDecoration(
+                  labelText: 'Credential (TURN)',
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: username,
-            decoration: const InputDecoration(labelText: 'Username (TURN)'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: credential,
-            decoration: const InputDecoration(labelText: 'Credential (TURN)'),
-          ),
-        ],
+        ),
       ),
       actions: [
         TextButton(

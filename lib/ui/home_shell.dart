@@ -6,6 +6,7 @@ import 'screens/devices_screen.dart';
 import 'screens/folders_screen.dart';
 import 'screens/pair_screen.dart';
 import 'screens/settings_screen.dart';
+import 'widgets/expressive.dart';
 
 class _Destination {
   const _Destination(this.icon, this.selectedIcon, this.label, this.screen);
@@ -18,15 +19,35 @@ class _Destination {
 
 const _destinations = [
   _Destination(
-      Icons.devices_outlined, Icons.devices_rounded, 'Devices', DevicesScreen()),
+    Icons.devices_outlined,
+    Icons.devices_rounded,
+    'Devices',
+    DevicesScreen(),
+  ),
   _Destination(
-      Icons.folder_outlined, Icons.folder_rounded, 'Folders', FoldersScreen()),
-  _Destination(Icons.qr_code_scanner_outlined, Icons.qr_code_scanner_rounded,
-      'Pair', PairScreen()),
-  _Destination(Icons.sync_outlined, Icons.sync_rounded, 'Activity',
-      ActivityScreen()),
-  _Destination(Icons.settings_outlined, Icons.settings_rounded, 'Settings',
-      SettingsScreen()),
+    Icons.folder_outlined,
+    Icons.folder_rounded,
+    'Folders',
+    FoldersScreen(),
+  ),
+  _Destination(
+    Icons.qr_code_scanner_outlined,
+    Icons.qr_code_scanner_rounded,
+    'Pair',
+    PairScreen(),
+  ),
+  _Destination(
+    Icons.sync_outlined,
+    Icons.sync_rounded,
+    'Activity',
+    ActivityScreen(),
+  ),
+  _Destination(
+    Icons.settings_outlined,
+    Icons.settings_rounded,
+    'Settings',
+    SettingsScreen(),
+  ),
 ];
 
 class HomeShell extends ConsumerStatefulWidget {
@@ -45,6 +66,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   Widget build(BuildContext context) {
     final active = _destinations[_index];
     final colors = context.colors;
+    final activeScreen = KeyedSubtree(
+      key: ValueKey(active.label),
+      child: active.screen,
+    );
 
     if (context.width >= 720) {
       return Scaffold().body(
@@ -79,13 +104,15 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                     padding: const EdgeInsets.fromLTRB(24, 28, 24, 4),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(active.label)
-                          .size(28)
-                          .weight(.w800)
-                          .letterSpacing(-0.5),
+                      child: ExpressiveSwitcher(
+                        child: Text(
+                          active.label,
+                          key: ValueKey(active.label),
+                        ).size(28).weight(.w800).letterSpacing(0),
+                      ),
                     ),
                   ),
-                  Expanded(child: active.screen),
+                  Expanded(child: ExpressivePageSwitcher(child: activeScreen)),
                 ],
               ),
             ),
@@ -95,17 +122,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     }
 
     return Scaffold()
-        .appBar(AppBar(
-          title: Text(active.label).weight(.w800),
-          actions: [
-            if (_index == 0)
-              IconButton(
-                icon: const Icon(Icons.person_outline_rounded),
-                onPressed: () {},
-              ),
-          ],
-        ))
-        .body(active.screen)
+        .appBar(
+          AppBar(
+            title: Text(active.label).weight(.w800),
+            actions: [
+              if (_index == 0)
+                IconButton(
+                  icon: const Icon(Icons.person_outline_rounded),
+                  onPressed: () {},
+                ),
+            ],
+          ),
+        )
+        .body(ExpressivePageSwitcher(child: activeScreen))
         .bottomNavigation(
           NavigationBar(
             selectedIndex: _index,

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 
 import '../../state/app_providers.dart';
+import '../theme.dart';
+import '../widgets/expressive.dart';
 import '../widgets/ice_server_dialog.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -14,158 +16,344 @@ class SettingsScreen extends ConsumerWidget {
     final notifier = ref.read(configProvider.notifier);
     final colors = context.colors;
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: .stretch,
-        children: [
-          const SizedBox(height: 8),
-          _Section(
-            title: 'Appearance',
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: M3EToggleButtonGroup(
-                  actions: const [
-                    M3EToggleButtonGroupAction(
-                      icon: Icon(Icons.brightness_auto_rounded),
-                      label: Text('System'),
-                    ),
-                    M3EToggleButtonGroupAction(
-                      icon: Icon(Icons.light_mode_rounded),
-                      label: Text('Light'),
-                    ),
-                    M3EToggleButtonGroupAction(
-                      icon: Icon(Icons.dark_mode_rounded),
-                      label: Text('Dark'),
-                    ),
-                  ],
-                  type: .connected,
-                  size: .sm,
-                  style: .tonal,
-                  selectedIndex: config.themeMode.index,
-                  onSelectedIndexChanged: (i) {
-                    if (i != null) notifier.setThemeMode(ThemeMode.values[i]);
-                  },
-                ),
-              ),
-            ],
-          ),
-          _Section(
-            title: 'Discovery',
-            children: [
-              _SettingTile(
-                icon: Icons.wifi_rounded,
-                title: 'Local network (mDNS)',
-                subtitle: 'Find peers on the same network',
-                trailing: Switch(
-                  value: config.lanDiscovery,
-                  onChanged: notifier.toggleLanDiscovery,
-                ),
-              ),
-              _SettingTile(
-                icon: Icons.public_rounded,
-                title: 'Internet (DHT)',
-                subtitle: 'Find peers across networks',
-                trailing: Switch(
-                  value: config.dhtDiscovery,
-                  onChanged: notifier.toggleDhtDiscovery,
-                ),
-              ),
-              _SettingTile(
-                icon: Icons.sync_rounded,
-                title: 'Sync in background',
-                subtitle: 'Keep syncing when app is not focused',
-                trailing: Switch(
-                  value: config.syncInBackground,
-                  onChanged: notifier.toggleBackground,
-                ),
-              ),
-            ],
-          ),
-          _Section(
-            title: 'Signaling (STUN / TURN)',
-            children: [
-              if (config.iceServers.isEmpty)
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
+        child: Column(
+          crossAxisAlignment: .stretch,
+          children: [
+            ExpressiveSection(
+              title: 'Appearance',
+              children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                  child: Text('Using default STUN server')
-                      .size(14)
-                      .color(colors.onSurfaceVariant)
-                      .align(.center),
-                ),
-              for (var i = 0; i < config.iceServers.length; i++)
-                _SettingTile(
-                  icon: config.iceServers[i].isTurn
-                      ? Icons.dns_rounded
-                      : Icons.lan_rounded,
-                  title: config.iceServers[i].url,
-                  subtitle: config.iceServers[i].isTurn ? 'TURN' : 'STUN',
-                  trailing: IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 20),
-                    onPressed: () => notifier.removeIceServer(i),
+                  padding: const EdgeInsets.all(16),
+                  child: M3EToggleButtonGroup(
+                    actions: const [
+                      M3EToggleButtonGroupAction(
+                        icon: Icon(Icons.brightness_auto_rounded),
+                        label: Text('System'),
+                      ),
+                      M3EToggleButtonGroupAction(
+                        icon: Icon(Icons.light_mode_rounded),
+                        label: Text('Light'),
+                      ),
+                      M3EToggleButtonGroupAction(
+                        icon: Icon(Icons.dark_mode_rounded),
+                        label: Text('Dark'),
+                      ),
+                    ],
+                    type: .connected,
+                    size: .sm,
+                    style: .tonal,
+                    selectedIndex: config.themeMode.index,
+                    onSelectedIndexChanged: (i) {
+                      if (i != null) notifier.setThemeMode(ThemeMode.values[i]);
+                    },
                   ),
                 ),
-            ],
-          ),
-          M3EButton.icon(
-            onPressed: () async {
-              final server = await showIceServerDialog(context);
-              if (server != null) notifier.addIceServer(server);
-            },
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Add server'),
-            style: .tonal,
-          ).padding(horizontal: 16, top: 12),
-          const SizedBox(height: 40),
-        ],
+                _PalettePicker(
+                  selectedId: config.themeSchemeId,
+                  onSelected: notifier.setThemeScheme,
+                ),
+              ],
+            ),
+            ExpressiveSection(
+              title: 'Discovery',
+              children: [
+                _SettingTile(
+                  icon: Icons.wifi_rounded,
+                  title: 'Local network (mDNS)',
+                  subtitle: 'Find peers on the same network',
+                  trailing: Switch(
+                    value: config.lanDiscovery,
+                    onChanged: notifier.toggleLanDiscovery,
+                  ),
+                ),
+                _SettingTile(
+                  icon: Icons.public_rounded,
+                  title: 'Internet (DHT)',
+                  subtitle: 'Find peers across networks',
+                  trailing: Switch(
+                    value: config.dhtDiscovery,
+                    onChanged: notifier.toggleDhtDiscovery,
+                  ),
+                ),
+                _SettingTile(
+                  icon: Icons.sync_rounded,
+                  title: 'Sync in background',
+                  subtitle: 'Keep syncing when app is not focused',
+                  trailing: Switch(
+                    value: config.syncInBackground,
+                    onChanged: notifier.toggleBackground,
+                  ),
+                ),
+              ],
+            ),
+            ExpressiveSection(
+              title: 'Signaling (STUN / TURN)',
+              children: [
+                if (config.iceServers.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                    child: Text(
+                      'Using default STUN server',
+                    ).size(14).color(colors.onSurfaceVariant).align(.center),
+                  ),
+                for (var i = 0; i < config.iceServers.length; i++)
+                  _SettingTile(
+                    icon: config.iceServers[i].isTurn
+                        ? Icons.dns_rounded
+                        : Icons.lan_rounded,
+                    title: config.iceServers[i].url,
+                    subtitle: config.iceServers[i].isTurn ? 'TURN' : 'STUN',
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      onPressed: () => notifier.removeIceServer(i),
+                    ),
+                  ),
+              ],
+            ),
+            ExpressiveReveal(
+              child: M3EButton.icon(
+                onPressed: () async {
+                  final server = await showIceServerDialog(context);
+                  if (server != null) notifier.addIceServer(server);
+                },
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Add server'),
+                style: .tonal,
+                size: .md,
+              ).padding(horizontal: 16, top: 4),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children});
+class _PalettePicker extends StatelessWidget {
+  const _PalettePicker({required this.selectedId, required this.onSelected});
 
-  final String title;
-  final List<Widget> children;
+  final String selectedId;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: pointThemeSchemes.length,
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 160,
+          mainAxisExtent: 92,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemBuilder: (context, index) {
+          final scheme = pointThemeSchemes[index];
+          final selected = scheme.id == selectedId;
+          final preview = pointColorScheme(
+            Theme.of(context).brightness,
+            scheme.id,
+          );
+          return _PaletteCard(
+            scheme: scheme,
+            preview: preview,
+            selected: selected,
+            onTap: () => onSelected(scheme.id),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _PaletteCard extends StatefulWidget {
+  const _PaletteCard({
+    required this.scheme,
+    required this.preview,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final PointThemeScheme scheme;
+  final ColorScheme preview;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_PaletteCard> createState() => _PaletteCardState();
+}
+
+class _PaletteCardState extends State<_PaletteCard> {
+  bool _hovered = false;
+  bool _focused = false;
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Column(
-      crossAxisAlignment: .stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-          child: Text(title)
-              .size(12)
-              .weight(.w800)
-              .letterSpacing(0.8)
-              .color(colors.primary),
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+    final preview = widget.preview;
+    final selected = widget.selected;
+    final active = _hovered || _focused || _pressed;
+    final foreground = selected
+        ? preview.onSecondaryContainer
+        : colors.onSurface;
+    final borderColor = selected || _focused
+        ? preview.primary
+        : _hovered
+        ? preview.secondary
+        : colors.outlineVariant;
+    final stateLayerColor = _pressed
+        ? preview.primary.withValues(alpha: .14)
+        : _focused
+        ? preview.primary.withValues(alpha: .12)
+        : _hovered
+        ? preview.primary.withValues(alpha: .08)
+        : Colors.transparent;
+
+    return Semantics(
+      selected: selected,
+      button: true,
+      label: widget.scheme.name,
+      child: AnimatedScale(
+        duration: expressiveFastDuration,
+        curve: expressiveCurve,
+        scale: _pressed
+            ? .96
+            : active || selected
+            ? 1
+            : .98,
+        child: AnimatedContainer(
+          duration: expressiveFastDuration,
+          curve: expressiveCurve,
           decoration: BoxDecoration(
-            color: colors.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(28),
-          ),
-          child: Column(
-            mainAxisSize: .min,
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0)
-                  Divider(
-                    height: 1,
-                    indent: 56,
-                    endIndent: 0,
-                    color: colors.outlineVariant.withValues(alpha: .4),
-                  ),
-                children[i],
-              ],
+            color: selected
+                ? preview.secondaryContainer
+                : active
+                ? colors.surfaceContainerHigh
+                : colors.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(
+              _pressed
+                  ? 18
+                  : selected || active
+                  ? 28
+                  : 22,
+            ),
+            border: Border.all(
+              color: borderColor,
+              width: selected || _focused ? 2 : 1,
+            ),
+            boxShadow: [
+              if (_hovered && !_pressed)
+                BoxShadow(
+                  color: preview.primary.withValues(alpha: .10),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
             ],
           ),
+          clipBehavior: Clip.antiAlias,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onTap,
+              onHover: (value) => setState(() => _hovered = value),
+              onFocusChange: (value) => setState(() => _focused = value),
+              onTapDown: (_) => setState(() => _pressed = true),
+              onTapUp: (_) => setState(() => _pressed = false),
+              onTapCancel: () => setState(() => _pressed = false),
+              customBorder: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  _pressed
+                      ? 18
+                      : selected || active
+                      ? 28
+                      : 22,
+                ),
+              ),
+              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  AnimatedContainer(
+                    duration: expressiveFastDuration,
+                    curve: expressiveCurve,
+                    color: stateLayerColor,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        Row(
+                          children: [
+                            _Swatch(color: preview.primary),
+                            _Swatch(color: preview.secondary),
+                            _Swatch(color: preview.tertiary),
+                            const Spacer(),
+                            AnimatedSwitcher(
+                              duration: expressiveFastDuration,
+                              child: selected
+                                  ? Icon(
+                                      Icons.check_circle_rounded,
+                                      key: const ValueKey('selected'),
+                                      size: 20,
+                                      color: preview.onSecondaryContainer,
+                                    )
+                                  : Icon(
+                                      widget.scheme.icon,
+                                      key: const ValueKey('icon'),
+                                      size: 20,
+                                      color: active
+                                          ? preview.primary
+                                          : colors.onSurfaceVariant,
+                                    ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Text(
+                          widget.scheme.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ).size(13).weight(.w800).color(foreground),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _Swatch extends StatelessWidget {
+  const _Swatch({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20,
+      height: 20,
+      margin: const EdgeInsets.only(right: 4),
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: .8),
+          width: 2,
+        ),
+      ),
     );
   }
 }
@@ -187,10 +375,19 @@ class _SettingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return ListTile(
-      leading: Icon(icon, color: colors.onSurfaceVariant),
+      leading: ExpressiveIconContainer(
+        icon: icon,
+        color: colors.secondaryContainer,
+        foregroundColor: colors.onSecondaryContainer,
+        size: 44,
+        radius: 16,
+      ),
       title: Text(title),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing,
+      trailing: AnimatedSwitcher(
+        duration: expressiveFastDuration,
+        child: trailing,
+      ),
     );
   }
 }

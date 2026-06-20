@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state/app_providers.dart';
@@ -11,16 +10,20 @@ class PointMachineApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mode = ref.watch(configProvider.select((c) => c.themeMode));
-    return DynamicColorBuilder(
-      builder: (light, dark) => MaterialApp(
-        title: 'point-machine',
-        theme: pointTheme(.light, light),
-        darkTheme: pointTheme(.dark, dark),
-        themeMode: mode,
-        debugShowCheckedModeBanner: false,
-        home: const HomeShell(),
+    final themeConfig = ref.watch(
+      configProvider.select(
+        (c) => (mode: c.themeMode, schemeId: c.themeSchemeId),
       ),
+    );
+    return MaterialApp(
+      title: 'point-machine',
+      theme: pointTheme(.light, themeConfig.schemeId),
+      darkTheme: pointTheme(.dark, themeConfig.schemeId),
+      themeMode: themeConfig.mode,
+      themeAnimationDuration: const Duration(milliseconds: 220),
+      themeAnimationCurve: Easing.emphasizedDecelerate,
+      debugShowCheckedModeBanner: false,
+      home: const HomeShell(),
     );
   }
 }
