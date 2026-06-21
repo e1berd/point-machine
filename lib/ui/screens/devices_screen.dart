@@ -36,90 +36,118 @@ class DevicesScreen extends ConsumerWidget {
             title: context.t.devices.errorLoad,
             message: '$error',
           ),
-          data: (device) => Column(
-            key: const ValueKey('identity-data'),
-            crossAxisAlignment: .stretch,
-            children: [
-              ExpressiveReveal(
-                child: M3ECardList(
-                  itemCount: 1,
-                  itemBuilder: (ctx, i) => _thisDevice(context, name),
-                  outerRadius: 32,
-                  innerRadius: 12,
-                  gap: 0,
-                  color: colors.surfaceContainerHigh,
-                  padding: const EdgeInsets.all(20),
-                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-                child: Text(
-                  context.t.devices.title,
-                ).size(12).weight(.w800).letterSpacing(0).color(colors.primary),
-              ),
-              Expanded(
-                child: ExpressiveSwitcher(
-                  child: peers.when(
-                    loading: () => const Center(
-                      key: ValueKey('peers-loading'),
-                      child: CircularProgressIndicator(),
-                    ),
-                    error: (error, _) => EmptyState(
-                      key: const ValueKey('peers-error'),
-                      icon: Icons.error_outline_rounded,
-                      title: context.t.devices.errorLoadPeers,
-                      message: '$error',
-                    ),
-                    data: (items) {
-                      if (items.isEmpty) {
-                        return EmptyState(
-                          key: const ValueKey('peers-empty'),
-                          icon: Icons.devices_other_rounded,
-                          title: context.t.devices.empty,
-                          message: context.t.devices.emptyHint,
-                        );
-                      }
+          data: (device) {
+            if (MediaQuery.sizeOf(context).width >=
+                expressiveMediumBreakpoint) {
+              return SizedBox.expand(
+                child: _DesktopDevicesLayout(name: name, peers: peers),
+              );
+            }
 
-                      return M3EDismissibleCardList(
-                        key: const ValueKey('peers-list'),
-                        itemCount: items.length,
-                        itemBuilder: (ctx, i) =>
-                            _pairedDevice(context, ref, items[i]),
-                        onDismiss: (i, _) async {
-                          await ref
-                              .read(pairedPeersProvider.notifier)
-                              .remove(items[i].deviceId);
-                          return true;
-                        },
-                        style: M3EDismissibleCardStyle(
-                          outerRadius: 32,
-                          innerRadius: 12,
-                          gap: 8,
-                          color: colors.surfaceContainerHigh,
-                          padding: const EdgeInsets.all(16),
-                          backgroundBorderRadius: 32,
-                          secondaryBackgroundBorderRadius: 32,
-                          background: deleteSwipeBackground(
-                            context,
-                            Alignment.centerLeft,
-                            context.t.devices.remove,
-                          ),
-                          secondaryBackground: deleteSwipeBackground(
-                            context,
-                            Alignment.centerRight,
-                            context.t.devices.remove,
-                          ),
-                        ),
-                        listPadding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-                      );
-                    },
+            return Column(
+              key: const ValueKey('identity-data'),
+              crossAxisAlignment: .stretch,
+              children: [
+                ExpressiveResponsiveCenter(
+                  maxWidth: 1180,
+                  padding: expressiveScreenPadding(context).copyWith(bottom: 0),
+                  child: ExpressiveReveal(
+                    child: M3ECardList(
+                      itemCount: 1,
+                      itemBuilder: (ctx, i) => _thisDevice(context, name),
+                      outerRadius: 32,
+                      innerRadius: 12,
+                      gap: 0,
+                      color: colors.surfaceContainerHigh,
+                      padding: const EdgeInsets.all(20),
+                      margin: EdgeInsets.zero,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+                ExpressiveResponsiveCenter(
+                  maxWidth: 1180,
+                  padding: EdgeInsets.fromLTRB(
+                    expressiveScreenPadding(context).left,
+                    24,
+                    expressiveScreenPadding(context).right,
+                    8,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: Text(context.t.devices.title)
+                      .size(12)
+                      .weight(.w800)
+                      .letterSpacing(0)
+                      .color(colors.primary),
+                ),
+                Expanded(child: _peersBody(context, ref, peers)),
+              ],
+            );
+          },
         ),
+      ),
+    );
+  }
+
+  Widget _peersBody(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<List<PairingPayload>> peers,
+  ) {
+    final colors = context.colors;
+    return ExpressiveSwitcher(
+      child: peers.when(
+        loading: () => const Center(
+          key: ValueKey('peers-loading'),
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, _) => EmptyState(
+          key: const ValueKey('peers-error'),
+          icon: Icons.error_outline_rounded,
+          title: context.t.devices.errorLoadPeers,
+          message: '$error',
+        ),
+        data: (items) {
+          if (items.isEmpty) {
+            return EmptyState(
+              key: const ValueKey('peers-empty'),
+              icon: Icons.devices_other_rounded,
+              title: context.t.devices.empty,
+              message: context.t.devices.emptyHint,
+            );
+          }
+
+          return M3EDismissibleCardList(
+            key: const ValueKey('peers-list'),
+            itemCount: items.length,
+            itemBuilder: (ctx, i) => _pairedDevice(context, ref, items[i]),
+            onDismiss: (i, _) async {
+              await ref
+                  .read(pairedPeersProvider.notifier)
+                  .remove(items[i].deviceId);
+              return true;
+            },
+            style: M3EDismissibleCardStyle(
+              outerRadius: 32,
+              innerRadius: 12,
+              gap: 8,
+              color: colors.surfaceContainerHigh,
+              padding: const EdgeInsets.all(16),
+              backgroundBorderRadius: 32,
+              secondaryBackgroundBorderRadius: 32,
+              background: deleteSwipeBackground(
+                context,
+                Alignment.centerLeft,
+                context.t.devices.remove,
+              ),
+              secondaryBackground: deleteSwipeBackground(
+                context,
+                Alignment.centerRight,
+                context.t.devices.remove,
+              ),
+            ),
+            listPadding: expressiveScreenPadding(context).copyWith(top: 0),
+          );
+        },
       ),
     );
   }
@@ -161,7 +189,9 @@ class DevicesScreen extends ConsumerWidget {
                   ).size(16).weight(.w700),
                 ),
               ),
-              Text(context.t.devices.thisDevice).size(12).color(colors.onSurfaceVariant),
+              Text(
+                context.t.devices.thisDevice,
+              ).size(12).color(colors.onSurfaceVariant),
             ],
           ),
         ),
@@ -200,6 +230,122 @@ class DevicesScreen extends ConsumerWidget {
     WidgetRef ref,
     PairingPayload peer,
   ) {
+    return _PairedDeviceContent(peer: peer, showRemove: false);
+  }
+}
+
+class _DesktopDevicesLayout extends ConsumerWidget {
+  const _DesktopDevicesLayout({required this.name, required this.peers});
+
+  final AsyncValue<String> name;
+  final AsyncValue<List<PairingPayload>> peers;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final padding = expressiveScreenPadding(context);
+    final colors = context.colors;
+
+    return SingleChildScrollView(
+      key: const ValueKey('devices-desktop'),
+      padding: padding,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 980),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ExpressiveReveal(
+                  child: ExpressivePanel(
+                    padding: const EdgeInsets.all(20),
+                    child: const DevicesScreen()._thisDevice(context, name),
+                  ),
+                ),
+                Text(context.t.devices.title)
+                    .size(12)
+                    .weight(.w800)
+                    .letterSpacing(0)
+                    .color(colors.primary)
+                    .padding(left: 20, top: 26, bottom: 8),
+                peers.when(
+                  loading: () => const Padding(
+                    padding: EdgeInsets.only(top: 96),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (error, _) => EmptyState(
+                    key: const ValueKey('peers-error-desktop'),
+                    icon: Icons.error_outline_rounded,
+                    title: context.t.devices.errorLoadPeers,
+                    message: '$error',
+                  ),
+                  data: (items) => items.isEmpty
+                      ? EmptyState(
+                          key: const ValueKey('peers-empty-desktop'),
+                          icon: Icons.devices_other_rounded,
+                          title: context.t.devices.empty,
+                          message: context.t.devices.emptyHint,
+                        )
+                      : AnimatedSwitcher(
+                          duration: expressiveDuration,
+                          reverseDuration: expressiveFastDuration,
+                          switchInCurve: expressiveCurve,
+                          switchOutCurve: expressiveExitCurve,
+                          child: _DesktopPeerList(
+                            key: ValueKey(
+                              items.map((peer) => peer.deviceId).join('|'),
+                            ),
+                            items: items,
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DesktopPeerList extends StatelessWidget {
+  const _DesktopPeerList({super.key, required this.items});
+
+  final List<PairingPayload> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpressivePanel(
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: _PairedDeviceContent(peer: items[i], showRemove: true),
+            ),
+            if (i < items.length - 1)
+              Divider(
+                height: 1,
+                indent: 86,
+                color: context.colors.outlineVariant.withValues(alpha: .42),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PairedDeviceContent extends ConsumerWidget {
+  const _PairedDeviceContent({required this.peer, required this.showRemove});
+
+  final PairingPayload peer;
+  final bool showRemove;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final folders = ref.watch(foldersProvider).value ?? const <FolderConfig>[];
     final sharedFolders = [
@@ -228,15 +374,20 @@ class DevicesScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            if (showRemove)
+              IconButton(
+                tooltip: context.t.devices.remove,
+                onPressed: () => ref
+                    .read(pairedPeersProvider.notifier)
+                    .remove(peer.deviceId),
+                icon: const Icon(Icons.delete_outline_rounded),
+              ),
           ],
         ),
         if (sharedFolders.isNotEmpty) ...[
           const SizedBox(height: 12),
           for (final folder in sharedFolders)
-            _FolderStatusChip(
-              folder: folder,
-              peer: peer,
-            ),
+            _FolderStatusChip(folder: folder, peer: peer),
         ],
       ],
     );
@@ -268,9 +419,7 @@ class _FolderStatusChip extends ConsumerWidget {
         children: [
           Icon(Icons.folder_rounded, size: 16, color: dotColor),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(folder.label).size(13).weight(.w500),
-          ),
+          Expanded(child: Text(folder.label).size(13).weight(.w500)),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
@@ -279,13 +428,19 @@ class _FolderStatusChip extends ConsumerWidget {
                   : colors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              hasError
-                  ? context.t.folders.remoteMissing
-                  : parts.join(' · '),
-            ).size(11).weight(.w600).color(
-              hasError ? colors.onErrorContainer : colors.onSurfaceVariant,
-            ),
+            child:
+                Text(
+                      hasError
+                          ? context.t.folders.remoteMissing
+                          : parts.join(' · '),
+                    )
+                    .size(11)
+                    .weight(.w600)
+                    .color(
+                      hasError
+                          ? colors.onErrorContainer
+                          : colors.onSurfaceVariant,
+                    ),
           ),
         ],
       ),

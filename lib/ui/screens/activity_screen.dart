@@ -12,6 +12,8 @@ import '../widgets/delete_swipe.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 
+const _activityDesktopWidth = 960.0;
+
 class ActivityScreen extends ConsumerWidget {
   const ActivityScreen({super.key});
 
@@ -28,51 +30,134 @@ class ActivityScreen extends ConsumerWidget {
         children: [
           const ExpressiveReveal(child: _ScheduleControls()),
           Expanded(
-            child: events.isEmpty
-                ? EmptyState(
-                    icon: Icons.sync_rounded,
-                    title: context.t.activity.empty,
-                    message: context.t.activity.emptyHint,
-                  )
-                : ExpressiveReveal(
-                    child: M3EDismissibleCardList(
-                      key: const ValueKey('activity-list'),
-                      itemCount: events.length,
-                      itemBuilder: (context, index) => _ActivityEventRow(
-                        event: events[index],
-                        names: names,
-                      ),
-                      onDismiss: (index, _) async {
-                        ref.read(syncEventsProvider.notifier).removeAt(index);
-                        return true;
-                      },
-                      style: M3EDismissibleCardStyle(
-                        outerRadius: 32,
-                        innerRadius: 8,
-                        gap: 0,
-                        color: context.colors.surfaceContainerHigh,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        backgroundBorderRadius: 32,
-                        secondaryBackgroundBorderRadius: 32,
-                        background: deleteSwipeBackground(
-                          context,
-                          Alignment.centerLeft,
-                          context.t.activity.remove,
-                        ),
-                        secondaryBackground: deleteSwipeBackground(
-                          context,
-                          Alignment.centerRight,
-                          context.t.activity.remove,
-                        ),
-                      ),
-                      listPadding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-                    ),
-                  ),
+            child: _ActivityBody(events: events, names: names),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActivityBody extends ConsumerWidget {
+  const _ActivityBody({required this.events, required this.names});
+
+  final List<SyncEvent> events;
+  final Map<String, String> names;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (events.isEmpty) {
+      return EmptyState(
+        icon: Icons.sync_rounded,
+        title: context.t.activity.empty,
+        message: context.t.activity.emptyHint,
+      );
+    }
+
+    if (MediaQuery.sizeOf(context).width >= expressiveMediumBreakpoint) {
+      final padding = expressiveScreenPadding(context).copyWith(top: 0);
+      return ExpressiveReveal(
+        child: Padding(
+          padding: padding,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: _activityDesktopWidth,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: ListView(
+                  key: const ValueKey('activity-desktop-list'),
+                  padding: EdgeInsets.zero,
+                  children: [
+                    ExpressivePanel(
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          for (
+                            var index = 0;
+                            index < events.length;
+                            index++
+                          ) ...[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                18,
+                                16,
+                                10,
+                                16,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _ActivityEventRow(
+                                      event: events[index],
+                                      names: names,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: context.t.activity.remove,
+                                    onPressed: () => ref
+                                        .read(syncEventsProvider.notifier)
+                                        .removeAt(index),
+                                    icon: const Icon(
+                                      Icons.delete_outline_rounded,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (index < events.length - 1)
+                              Divider(
+                                height: 1,
+                                indent: 84,
+                                color: context.colors.outlineVariant.withValues(
+                                  alpha: .42,
+                                ),
+                              ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ExpressiveReveal(
+      child: M3EDismissibleCardList(
+        key: const ValueKey('activity-list'),
+        itemCount: events.length,
+        itemBuilder: (context, index) =>
+            _ActivityEventRow(event: events[index], names: names),
+        onDismiss: (index, _) async {
+          ref.read(syncEventsProvider.notifier).removeAt(index);
+          return true;
+        },
+        style: M3EDismissibleCardStyle(
+          outerRadius: 32,
+          innerRadius: 8,
+          gap: 0,
+          color: context.colors.surfaceContainerHigh,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          backgroundBorderRadius: 32,
+          secondaryBackgroundBorderRadius: 32,
+          background: deleteSwipeBackground(
+            context,
+            Alignment.centerLeft,
+            context.t.activity.remove,
+          ),
+          secondaryBackground: deleteSwipeBackground(
+            context,
+            Alignment.centerRight,
+            context.t.activity.remove,
+          ),
+        ),
+        listPadding: expressiveScreenPadding(context).copyWith(top: 0),
       ),
     );
   }
@@ -242,67 +327,77 @@ class _ScheduleControls extends ConsumerWidget {
     final activeTransports = _activeTransports(ref.watch(syncEventsProvider));
     final notifier = ref.read(configProvider.notifier);
 
+    final padding = expressiveScreenPadding(context).copyWith(bottom: 12);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: Material(
-        color: colors.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(28),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-          child: Column(
-            crossAxisAlignment: .stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      context.t.schedule.title,
-                    ).size(18).weight(.w800),
-                  ),
-                  _statusPill(context, active, activeTransports),
-                ],
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.t.schedule.syncNow),
-                subtitle: Text(context.t.schedule.syncNowHint),
-                value: config.syncNow,
-                onChanged: notifier.setSyncNow,
-              ),
-              const Divider(height: 12),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.t.schedule.scheduleTitle),
-                subtitle: Text(context.t.schedule.scheduleHint),
-                value: config.scheduleEnabled,
-                onChanged: notifier.setScheduleEnabled,
-              ),
-              if (config.scheduleEnabled)
-                Row(
+      padding: padding,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _activityDesktopWidth),
+          child: SizedBox(
+            width: double.infinity,
+            child: Material(
+              color: colors.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(28),
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Column(
+                  crossAxisAlignment: .stretch,
                   children: [
-                    Expanded(
-                      child: _timeField(
-                        context,
-                        ref,
-                        context.t.schedule.from,
-                        config.scheduleStart,
-                        start: true,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            context.t.schedule.title,
+                          ).size(18).weight(.w800),
+                        ),
+                        _statusPill(context, active, activeTransports),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _timeField(
-                        context,
-                        ref,
-                        context.t.schedule.to,
-                        config.scheduleEnd,
-                        start: false,
-                      ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(context.t.schedule.syncNow),
+                      subtitle: Text(context.t.schedule.syncNowHint),
+                      value: config.syncNow,
+                      onChanged: notifier.setSyncNow,
                     ),
+                    const Divider(height: 12),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(context.t.schedule.scheduleTitle),
+                      subtitle: Text(context.t.schedule.scheduleHint),
+                      value: config.scheduleEnabled,
+                      onChanged: notifier.setScheduleEnabled,
+                    ),
+                    if (config.scheduleEnabled)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _timeField(
+                              context,
+                              ref,
+                              context.t.schedule.from,
+                              config.scheduleStart,
+                              start: true,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _timeField(
+                              context,
+                              ref,
+                              context.t.schedule.to,
+                              config.scheduleEnd,
+                              start: false,
+                            ),
+                          ),
+                        ],
+                      ).padding(top: 8, bottom: 8),
                   ],
-                ).padding(top: 8, bottom: 8),
-            ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

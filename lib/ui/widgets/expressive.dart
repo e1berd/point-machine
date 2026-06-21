@@ -9,10 +9,101 @@ const expressiveDuration = Duration(milliseconds: 520);
 const expressiveFastDuration = Duration(milliseconds: 260);
 const expressiveCurve = Easing.emphasizedDecelerate;
 const expressiveExitCurve = Easing.emphasizedAccelerate;
+const expressiveCompactBreakpoint = 720.0;
+const expressiveMediumBreakpoint = 900.0;
+const expressiveExpandedBreakpoint = 1200.0;
 
 const _springReveal = M3EMotion.expressiveSpatialDefault;
 const _springFast = M3EMotion.expressiveEffectsFast;
 const _springScale = M3EMotion.expressiveSpatialFast;
+
+bool expressiveHasBottomNav(BuildContext context) =>
+    MediaQuery.sizeOf(context).width < expressiveCompactBreakpoint;
+
+EdgeInsets expressiveScreenPadding(BuildContext context) {
+  final width = MediaQuery.sizeOf(context).width;
+  final horizontal = width >= expressiveExpandedBreakpoint
+      ? 32.0
+      : width >= expressiveCompactBreakpoint
+      ? 24.0
+      : 16.0;
+  return EdgeInsets.fromLTRB(
+    horizontal,
+    width >= expressiveCompactBreakpoint ? 16 : 8,
+    horizontal,
+    expressiveHasBottomNav(context) ? 96 : 28,
+  );
+}
+
+int expressiveGridColumns(
+  BuildContext context, {
+  double minTileWidth = 360,
+  int maxColumns = 3,
+}) {
+  final width = MediaQuery.sizeOf(context).width;
+  if (width < expressiveMediumBreakpoint) return 1;
+  final available = width - expressiveScreenPadding(context).horizontal;
+  return (available / minTileWidth).floor().clamp(2, maxColumns);
+}
+
+class ExpressiveResponsiveCenter extends StatelessWidget {
+  const ExpressiveResponsiveCenter({
+    super.key,
+    required this.child,
+    this.maxWidth = 1180,
+    this.padding,
+    this.alignment = Alignment.topCenter,
+  });
+
+  final Widget child;
+  final double maxWidth;
+  final EdgeInsetsGeometry? padding;
+  final AlignmentGeometry alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: Padding(
+          padding: padding ?? expressiveScreenPadding(context),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class ExpressivePanel extends StatelessWidget {
+  const ExpressivePanel({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(20),
+    this.radius = 32,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return AnimatedContainer(
+      duration: expressiveFastDuration,
+      curve: expressiveCurve,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: .32)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: child,
+    );
+  }
+}
 
 class ExpressiveSwitcher extends StatelessWidget {
   const ExpressiveSwitcher({
@@ -45,10 +136,7 @@ class ExpressiveSwitcher extends StatelessWidget {
 }
 
 class ExpressivePageSwitcher extends StatelessWidget {
-  const ExpressivePageSwitcher({
-    super.key,
-    required this.child,
-  });
+  const ExpressivePageSwitcher({super.key, required this.child});
 
   final Widget child;
 
@@ -144,12 +232,14 @@ class ExpressiveSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.children,
-    this.margin = const EdgeInsets.fromLTRB(16, 0, 16, 16),
+    this.margin = EdgeInsets.zero,
+    this.trailing,
   });
 
   final String title;
   final List<Widget> children;
   final EdgeInsetsGeometry margin;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -160,13 +250,20 @@ class ExpressiveSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Text(
-              title.toUpperCase(),
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0,
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title.toUpperCase(),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ),
+                ?trailing,
+              ],
             ),
           ),
           AnimatedContainer(
@@ -336,8 +433,8 @@ class _ExpressiveSpringScaleState extends State<ExpressiveSpringScale>
   double get _target => widget.pressed
       ? .96
       : widget.active || widget.selected
-          ? 1
-          : .98;
+      ? 1
+      : .98;
 
   @override
   void dispose() {
@@ -350,10 +447,8 @@ class _ExpressiveSpringScaleState extends State<ExpressiveSpringScale>
     return AnimatedBuilder(
       animation: _controller,
       child: widget.child,
-      builder: (context, child) => Transform.scale(
-        scale: _controller.value,
-        child: child,
-      ),
+      builder: (context, child) =>
+          Transform.scale(scale: _controller.value, child: child),
     );
   }
 }
@@ -420,7 +515,11 @@ class _ExpressiveSpringContainerState extends State<ExpressiveSpringContainer>
       child: widget.child,
       builder: (context, child) {
         final t = _controller.value;
-        final current = _lerpDecoration(_previousDecoration, widget.decoration, t);
+        final current = _lerpDecoration(
+          _previousDecoration,
+          widget.decoration,
+          t,
+        );
         return AnimatedContainer(
           duration: Duration.zero,
           width: widget.width,

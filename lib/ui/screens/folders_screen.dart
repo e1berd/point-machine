@@ -21,81 +21,113 @@ class FoldersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final folders = ref.watch(foldersProvider);
-    final colors = context.colors;
-
     return SafeArea(
       top: false,
       child: Column(
         crossAxisAlignment: .stretch,
         children: [
-          ExpressiveReveal(
-            child: M3EButton.icon(
-              onPressed: () => _add(context, ref),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(context.t.folders.add),
-              size: .md,
-            ).padding(horizontal: 16, top: 12, bottom: 8),
-          ),
-          Expanded(
-            child: ExpressiveSwitcher(
-              child: folders.when(
-                loading: () => const Center(
-                  key: ValueKey('folders-loading'),
-                  child: CircularProgressIndicator(),
+          Padding(
+            padding: expressiveScreenPadding(context).copyWith(bottom: 8),
+            child: ExpressiveReveal(
+              child: Align(
+                alignment:
+                    MediaQuery.sizeOf(context).width >=
+                        expressiveMediumBreakpoint
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: M3EButton.icon(
+                  onPressed: () => _add(context, ref),
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(context.t.folders.add),
+                  size: .md,
                 ),
-                error: (error, _) => EmptyState(
-                  key: const ValueKey('folders-error'),
-                  icon: Icons.error_outline_rounded,
-                  title: context.t.folders.errorLoad,
-                  message: '$error',
-                ),
-                data: (list) => list.isEmpty
-                    ? EmptyState(
-                        key: const ValueKey('folders-empty'),
-                        icon: Icons.create_new_folder_rounded,
-                        title: context.t.folders.empty,
-                        message: context.t.folders.emptyHint,
-                      )
-                    : M3EDismissibleCardList(
-                        key: const ValueKey('folders-list'),
-                        itemCount: list.length,
-                        itemBuilder: (ctx, i) => _FolderTile(
-                          folder: list[i],
-                          onRemove: () => ref
-                              .read(foldersProvider.notifier)
-                              .remove(list[i].id),
-                        ),
-                        onDismiss: (i, _) async {
-                          await ref
-                              .read(foldersProvider.notifier)
-                              .remove(list[i].id);
-                          return true;
-                        },
-                        style: M3EDismissibleCardStyle(
-                          outerRadius: 32,
-                          innerRadius: 14,
-                          gap: 12,
-                          color: colors.surfaceContainerHigh,
-                          padding: const EdgeInsets.all(20),
-                          backgroundBorderRadius: 32,
-                          secondaryBackgroundBorderRadius: 32,
-                          background: _deleteBackground(
-                            context,
-                            Alignment.centerLeft,
-                          ),
-                          secondaryBackground: _deleteBackground(
-                            context,
-                            Alignment.centerRight,
-                          ),
-                        ),
-                        listPadding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-                      ),
               ),
             ),
           ),
+          Expanded(
+            child: ExpressiveSwitcher(child: _foldersBody(context, ref)),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _foldersBody(BuildContext context, WidgetRef ref) {
+    final folders = ref.watch(foldersProvider);
+    final colors = context.colors;
+
+    return folders.when(
+      loading: () => const Center(
+        key: ValueKey('folders-loading'),
+        child: CircularProgressIndicator(),
+      ),
+      error: (error, _) => EmptyState(
+        key: const ValueKey('folders-error'),
+        icon: Icons.error_outline_rounded,
+        title: context.t.folders.errorLoad,
+        message: '$error',
+      ),
+      data: (list) {
+        if (list.isEmpty) {
+          return EmptyState(
+            key: const ValueKey('folders-empty'),
+            icon: Icons.create_new_folder_rounded,
+            title: context.t.folders.empty,
+            message: context.t.folders.emptyHint,
+          );
+        }
+
+        if (MediaQuery.sizeOf(context).width >= expressiveMediumBreakpoint) {
+          return SizedBox.expand(
+            child: AnimatedSwitcher(
+              duration: expressiveDuration,
+              reverseDuration: expressiveFastDuration,
+              switchInCurve: expressiveCurve,
+              switchOutCurve: expressiveExitCurve,
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  alignment: Alignment.topLeft,
+                  children: [...previousChildren, ?currentChild],
+                );
+              },
+              child: _DesktopFolderGrid(
+                key: ValueKey(list.map((folder) => folder.id).join('|')),
+                folders: list,
+              ),
+            ),
+          );
+        }
+
+        return M3EDismissibleCardList(
+          key: const ValueKey('folders-list'),
+          itemCount: list.length,
+          itemBuilder: (ctx, i) => _FolderTile(
+            folder: list[i],
+            showRemove: false,
+            onRemove: () =>
+                ref.read(foldersProvider.notifier).remove(list[i].id),
+          ),
+          onDismiss: (i, _) async {
+            await ref.read(foldersProvider.notifier).remove(list[i].id);
+            return true;
+          },
+          style: M3EDismissibleCardStyle(
+            outerRadius: 32,
+            innerRadius: 14,
+            gap: 12,
+            color: colors.surfaceContainerHigh,
+            padding: const EdgeInsets.all(20),
+            backgroundBorderRadius: 32,
+            secondaryBackgroundBorderRadius: 32,
+            background: _deleteBackground(context, Alignment.centerLeft),
+            secondaryBackground: _deleteBackground(
+              context,
+              Alignment.centerRight,
+            ),
+          ),
+          listPadding: expressiveScreenPadding(context).copyWith(top: 0),
+        );
+      },
     );
   }
 
@@ -151,10 +183,15 @@ class FoldersScreen extends ConsumerWidget {
 }
 
 class _FolderTile extends ConsumerStatefulWidget {
-  const _FolderTile({required this.folder, required this.onRemove});
+  const _FolderTile({
+    required this.folder,
+    required this.onRemove,
+    required this.showRemove,
+  });
 
   final FolderConfig folder;
   final Future<void> Function() onRemove;
+  final bool showRemove;
 
   @override
   ConsumerState<_FolderTile> createState() => _FolderTileState();
@@ -236,6 +273,12 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
               onPressed: () => _showAccess(context, ref, folder),
               icon: const Icon(Icons.group_rounded),
             ),
+            if (widget.showRemove)
+              IconButton(
+                tooltip: context.t.folders.remove,
+                onPressed: widget.onRemove,
+                icon: const Icon(Icons.delete_outline_rounded),
+              ),
           ],
         ),
         const SizedBox(height: 14),
@@ -280,7 +323,13 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
                                   ? context.t.folders.folderSize(n: 0, size: '')
                                   : context.t.folders.folderSize(
                                       n: 1,
-                                      size: formatBytes(n, ['B', 'KB', 'MB', 'GB', 'TB']),
+                                      size: formatBytes(n, [
+                                        'B',
+                                        'KB',
+                                        'MB',
+                                        'GB',
+                                        'TB',
+                                      ]),
                                     );
                               return formatted;
                             },
@@ -293,9 +342,7 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
               ),
               M3EButton(
                 onPressed: () async {
-                  await ref
-                      .read(foldersProvider.notifier)
-                      .scan(folder);
+                  await ref.read(foldersProvider.notifier).scan(folder);
                 },
                 style: .tonal,
                 size: .sm,
@@ -323,6 +370,81 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
       ).showSnackBar(SnackBar(content: Text(context.t.folders.openFailed)));
     }
   }
+}
+
+class _DesktopFolderGrid extends ConsumerWidget {
+  const _DesktopFolderGrid({super.key, required this.folders});
+
+  final List<FolderConfig> folders;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final padding = expressiveScreenPadding(context).copyWith(top: 0);
+        const gap = 16.0;
+        final available = _desktopGridAvailable(constraints.maxWidth, padding);
+        final columns = _desktopGridColumns(available);
+        final contentWidth = _desktopGridWidth(constraints.maxWidth, padding);
+        final tileWidth = (contentWidth - gap * (columns - 1)) / columns;
+
+        return SingleChildScrollView(
+          key: const ValueKey('folders-grid'),
+          padding: padding,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: contentWidth,
+              child: Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: [
+                  for (final folder in folders)
+                    SizedBox(
+                      width: tileWidth,
+                      child: ExpressivePanel(
+                        padding: const EdgeInsets.all(20),
+                        child: _FolderTile(
+                          folder: folder,
+                          showRemove: true,
+                          onRemove: () async {
+                            await ref
+                                .read(foldersProvider.notifier)
+                                .remove(folder.id);
+                          },
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+double _desktopGridAvailable(double maxWidth, EdgeInsets padding) {
+  final available = maxWidth - padding.horizontal;
+  return available <= 0 ? 0 : available;
+}
+
+int _desktopGridColumns(double available) {
+  const minTileWidth = 360.0;
+  const gap = 16.0;
+  final threeColumnsWidth = minTileWidth * 3 + gap * 2;
+  return available >= threeColumnsWidth ? 3 : 2;
+}
+
+double _desktopGridWidth(double maxWidth, EdgeInsets padding) {
+  const maxTileWidth = 420.0;
+  const gap = 16.0;
+  final available = _desktopGridAvailable(maxWidth, padding);
+  if (available == 0) return 0;
+  final columns = _desktopGridColumns(available);
+  final preferred = columns * maxTileWidth + (columns - 1) * gap;
+  return preferred <= available ? preferred : available;
 }
 
 Widget _statusDot(BuildContext context, bool ok) => Container(
@@ -405,10 +527,7 @@ class _FolderAccessSheet extends ConsumerWidget {
               )
             else
               for (final peer in peers)
-                _PeerAccessTile(
-                  folder: current,
-                  peer: peer,
-                ),
+                _PeerAccessTile(folder: current, peer: peer),
           ],
         ),
       ),
