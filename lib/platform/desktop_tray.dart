@@ -23,14 +23,11 @@ class DesktopTray {
     _trayIcon = TrayIcon();
     if (image != null) _trayIcon.icon = image;
     _trayIcon.tooltip = 'point-machine';
-    _trayIcon.contextMenuTrigger = ContextMenuTrigger.rightClicked;
+    _trayIcon.contextMenuTrigger = ContextMenuTrigger.clicked;
 
     final menu = Menu();
     final showItem = MenuItem('Open point-machine');
-    showItem.on<MenuItemClickedEvent>((_) {
-      _window.show();
-      _window.focus();
-    });
+    showItem.on<MenuItemClickedEvent>((_) => _open());
     menu.addItem(showItem);
     menu.addSeparator();
     final quitItem = MenuItem('Quit');
@@ -38,12 +35,16 @@ class DesktopTray {
     menu.addItem(quitItem);
 
     _trayIcon.contextMenu = menu;
-    _trayIcon.on<TrayIconClickedEvent>((_) {
-      _window.show();
-      _window.focus();
-    });
+    _trayIcon.on<TrayIconRightClickedEvent>((_) => _trayIcon.openContextMenu());
+    _trayIcon.on<TrayIconDoubleClickedEvent>((_) => _open());
+    _trayIcon.isVisible = true;
 
     _enableAutostart();
+  }
+
+  void _open() {
+    _window.show();
+    _window.focus();
   }
 
   void hideToTray() => _window.hide();

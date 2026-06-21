@@ -4,10 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 
+import '../../core/byte_size.dart';
 import '../../core/models.dart';
 import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
 import '../../platform/open_path.dart';
+import '../../platform/storage_access.dart';
 import '../../state/folders_provider.dart';
 import '../../state/peers_provider.dart';
 import '../../state/share_controller.dart';
@@ -127,8 +129,17 @@ class FoldersScreen extends ConsumerWidget {
   }
 
   Future<void> _add(BuildContext context, WidgetRef ref) async {
-    final path = await FilePicker.platform.getDirectoryPath();
-    if (path == null) return;
+    if (!await ensureStorageAccess()) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.t.folders.storageDenied)),
+        );
+      }
+      return;
+    }
+    final picked = await FilePicker.platform.getDirectoryPath();
+    if (picked == null) return;
+    final path = resolveAndroidDirectory(picked);
 
     final added = await ref.read(foldersProvider.notifier).add(path);
     if (!added && context.mounted) {
@@ -170,7 +181,7 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
   Widget build(BuildContext context) {
     final folder = widget.folder;
     final onRemove = widget.onRemove;
-    final count = ref.watch(folderFileCountProvider(folder.id));
+    final size = ref.watch(folderSizeProvider(folder.id));
     final colors = context.colors;
 
     return Column(
@@ -250,7 +261,7 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
               const SizedBox(width: 8),
               Expanded(
                 child: ExpressiveSwitcher(
-                  child: (_scanning || count.isLoading)
+                  child: (_scanning || size.isLoading)
                       ? Row(
                           key: const ValueKey('folder-scanning'),
                           mainAxisSize: .min,
@@ -269,29 +280,28 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
                           ],
                         )
                       : Text(
-                          count.when(
-                            data: (n) => context.t.folders.fileCount(n: n),
+                          size.when(
+                            data: (n) {
+                              final formatted = n == 0
+                                  ? context.t.folders.folderSize(n: 0, size: '')
+                                  : context.t.folders.folderSize(
+                                      n: 1,
+                                      size: formatBytes(n, ['B', 'KB', 'MB', 'GB', 'TB']),
+                                    );
+                              return formatted;
+                            },
                             loading: () => context.t.folders.scanning,
                             error: (_, _) => '-',
                           ),
-                          key: ValueKey('folder-count-${count.value}'),
+                          key: ValueKey('folder-size-${size.value}'),
                         ).size(13).weight(.w600).color(colors.onSurfaceVariant),
                 ),
               ),
               M3EButton(
                 onPressed: () async {
-                  final scanned = await ref
+                  await ref
                       .read(foldersProvider.notifier)
                       .scan(folder);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          context.t.folders.scanned(count: scanned),
-                        ),
-                      ),
-                    );
-                  }
                 },
                 style: .tonal,
                 size: .sm,

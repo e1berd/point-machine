@@ -17,4 +17,4 @@ const msgRpc = 'pm.rpc';
 const opPairAt = 'pairAt';
 const opPairViaCode = 'pairViaCode';
 const opShareFolder = 'shareFolder';
-const opFolderCount = 'folderCount';
+const opFolderSize = 'folderSize';

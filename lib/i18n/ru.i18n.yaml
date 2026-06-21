@@ -26,6 +26,7 @@ devices:
 
 folders:
   add: Добавить папку
+  storageDenied: Для синхронизации нужен доступ к хранилищу
   manageAccess: Управление доступом
   access: Доступ устройств
   localFolder: Локальная папка
@@ -36,12 +37,12 @@ folders:
   emptyHint: Добавьте папку для синхронизации между устройствами.
   errorLoad: Не удалось загрузить папки
   scanning: Сканирование...
-  fileCount:
-    zero: Нет файлов
-    one: '{n} файл'
-    few: '{n} файла'
-    many: '{n} файлов'
-    other: '{n} файла'
+  folderSize:
+    zero: Пусто
+    one: '{size}'
+    few: '{size}'
+    many: '{size}'
+    other: '{size}'
   scan: Сканировать
   scanned: 'Просканировано файлов: {count}'
   alreadyAdded: Папка уже добавлена

@@ -7,9 +7,11 @@ import 'platform/desktop_lifecycle.dart';
 
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
-  final tray = await setupBackground(onQuit: () async {});
   runApp(const ProviderScope(child: PointMachineApp()));
-  if (tray != null) {
-    attachDesktopLifecycle(tray, startHidden: args.contains('--hidden'));
-  }
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final tray = await setupBackground(onQuit: () async {});
+    if (tray != null) {
+      attachDesktopLifecycle(tray, startHidden: args.contains('--hidden'));
+    }
+  });
 }

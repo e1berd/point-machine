@@ -6,6 +6,7 @@ import 'package:motor/motor.dart';
 
 import '../core/pairing.dart';
 import '../i18n/strings.g.dart';
+import '../platform/storage_access.dart';
 import '../state/app_providers.dart';
 import '../state/folders_provider.dart';
 import '../state/incoming_share_provider.dart';
@@ -123,9 +124,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       ),
     );
 
-    final path = accept == true
+    final picked = accept == true && await ensureStorageAccess()
         ? await FilePicker.platform.getDirectoryPath()
         : null;
+    final path = picked == null ? null : resolveAndroidDirectory(picked);
     final granted = path != null;
     if (granted) {
       await ref

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/config.dart';
+import '../i18n/strings.g.dart';
 
 const _prefsKey = 'app_config';
 
@@ -29,6 +30,14 @@ class ConfigNotifier extends Notifier<AppConfig> {
         Map<String, dynamic>.from(jsonDecode(json) as Map<String, dynamic>),
       );
     }
+    final code = state.localeCode;
+    if (code != null) LocaleSettings.setLocaleRawSync(code);
+  }
+
+  void setLocale(AppLocale locale) {
+    LocaleSettings.setLocale(locale);
+    state = state.copyWith(localeCode: locale.languageCode);
+    _save();
   }
 
   Future<void> _save() async {

@@ -103,6 +103,7 @@ class _Translations$folders$ru implements Translations$folders$en {
 
 	// Translations
 	@override String get add => 'Добавить папку';
+	@override String get storageDenied => 'Для синхронизации нужен доступ к хранилищу';
 	@override String get manageAccess => 'Управление доступом';
 	@override String get access => 'Доступ устройств';
 	@override String get localFolder => 'Локальная папка';
@@ -113,12 +114,12 @@ class _Translations$folders$ru implements Translations$folders$en {
 	@override String get emptyHint => 'Добавьте папку для синхронизации между устройствами.';
 	@override String get errorLoad => 'Не удалось загрузить папки';
 	@override String get scanning => 'Сканирование...';
-	@override String fileCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
-		zero: 'Нет файлов',
-		one: '${n} файл',
-		few: '${n} файла',
-		many: '${n} файлов',
-		other: '${n} файла',
+	@override String folderSize({required num n, required Object size}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
+		zero: 'Пусто',
+		one: '${size}',
+		few: '${size}',
+		many: '${size}',
+		other: '${size}',
 	);
 	@override String get scan => 'Сканировать';
 	@override String scanned({required Object count}) => 'Просканировано файлов: ${count}';
@@ -310,6 +311,7 @@ extension on TranslationsRu {
 			'devices.errorLoadPeers' => 'Не удалось загрузить связанные устройства',
 			'devices.remove' => 'Удалить устройство',
 			'folders.add' => 'Добавить папку',
+			'folders.storageDenied' => 'Для синхронизации нужен доступ к хранилищу',
 			'folders.manageAccess' => 'Управление доступом',
 			'folders.access' => 'Доступ устройств',
 			'folders.localFolder' => 'Локальная папка',
@@ -320,7 +322,7 @@ extension on TranslationsRu {
 			'folders.emptyHint' => 'Добавьте папку для синхронизации между устройствами.',
 			'folders.errorLoad' => 'Не удалось загрузить папки',
 			'folders.scanning' => 'Сканирование...',
-			'folders.fileCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, zero: 'Нет файлов', one: '${n} файл', few: '${n} файла', many: '${n} файлов', other: '${n} файла', ), 
+			'folders.folderSize' => ({required num n, required Object size}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, zero: 'Пусто', one: '${size}', few: '${size}', many: '${size}', other: '${size}', ), 
 			'folders.scan' => 'Сканировать',
 			'folders.scanned' => ({required Object count}) => 'Просканировано файлов: ${count}',
 			'folders.alreadyAdded' => 'Папка уже добавлена',

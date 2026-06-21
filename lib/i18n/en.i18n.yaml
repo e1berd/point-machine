@@ -26,6 +26,7 @@ devices:
 
 folders:
   add: Add folder
+  storageDenied: Storage access is required to sync folders
   manageAccess: Manage access
   access: Device access
   localFolder: Local folder
@@ -36,10 +37,10 @@ folders:
   emptyHint: Add a folder to start syncing across your devices.
   errorLoad: Could not load folders
   scanning: Scanning...
-  fileCount:
-    zero: No files
-    one: '{n} file'
-    other: '{n} files'
+  folderSize:
+    zero: Empty
+    one: '{size}'
+    other: '{size}'
   scan: Scan
   scanned: 'Scanned {count} files'
   alreadyAdded: Folder already added

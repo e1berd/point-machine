@@ -37,6 +37,21 @@ class ActivityLogController {
     await file.writeAsString('${_line(event)}\n', mode: FileMode.append);
   }
 
+  Future<List<SyncEvent>> read({int limit = 100}) async {
+    final file = File(await path());
+    if (!await file.exists()) return const [];
+    final lines = await file.readAsLines();
+    final events = <SyncEvent>[];
+    for (final line in lines) {
+      final event = _parse(line);
+      if (event != null) events.add(event);
+    }
+    final trimmed = events.length > limit
+        ? events.sublist(events.length - limit)
+        : events;
+    return trimmed.reversed.toList();
+  }
+
   Future<void> clear() async {
     final file = File(await path());
     await file.parent.create(recursive: true);
@@ -90,5 +105,36 @@ class ActivityLogController {
     return fields.entries
         .map((entry) => '${entry.key}=${entry.value}')
         .join(' ');
+  }
+
+  SyncEvent? _parse(String line) {
+    if (line.trim().isEmpty) return null;
+    var head = line;
+    String? path;
+    final marker = line.indexOf(' path=');
+    if (line.startsWith('path=')) {
+      head = '';
+      path = line.substring(5);
+    } else if (marker >= 0) {
+      head = line.substring(0, marker);
+      path = line.substring(marker + 6);
+    }
+    final fields = <String, String>{};
+    for (final token in head.split(' ')) {
+      final eq = token.indexOf('=');
+      if (eq > 0) fields[token.substring(0, eq)] = token.substring(eq + 1);
+    }
+    final kind = SyncEventKind.values
+        .where((value) => value.name == fields['kind'])
+        .firstOrNull;
+    if (kind == null) return null;
+    return SyncEvent(
+      kind,
+      peerId: fields['peer'],
+      folderId: fields['folder'],
+      transport: fields['transport'],
+      path: path,
+      at: DateTime.tryParse(fields['at'] ?? ''),
+    );
   }
 }

@@ -35,7 +35,7 @@ abstract class SyncController {
   Future<void> reloadFolders();
   Future<void> reloadConfig();
 
-  Future<int> folderCount(String folderId);
+  Future<int> folderSize(String folderId);
   Future<void> rescan(String folderId);
 
   Future<bool> pairAt(InternetAddress address, int port);

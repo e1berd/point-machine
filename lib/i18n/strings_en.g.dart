@@ -148,6 +148,9 @@ class Translations$folders$en {
 	/// en: 'Add folder'
 	String get add => 'Add folder';
 
+	/// en: 'Storage access is required to sync folders'
+	String get storageDenied => 'Storage access is required to sync folders';
+
 	/// en: 'Manage access'
 	String get manageAccess => 'Manage access';
 
@@ -178,11 +181,11 @@ class Translations$folders$en {
 	/// en: 'Scanning...'
 	String get scanning => 'Scanning...';
 
-	/// en: '(zero) {No files} (one) {{n} file} (other) {{n} files}'
-	String fileCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
-		zero: 'No files',
-		one: '${n} file',
-		other: '${n} files',
+	/// en: '(zero) {Empty} (one) {{size}} (other) {{size}}'
+	String folderSize({required num n, required Object size}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+		zero: 'Empty',
+		one: '${size}',
+		other: '${size}',
 	);
 
 	/// en: 'Scan'
@@ -586,6 +589,7 @@ extension on Translations {
 			'devices.errorLoadPeers' => 'Could not load paired devices',
 			'devices.remove' => 'Remove device',
 			'folders.add' => 'Add folder',
+			'folders.storageDenied' => 'Storage access is required to sync folders',
 			'folders.manageAccess' => 'Manage access',
 			'folders.access' => 'Device access',
 			'folders.localFolder' => 'Local folder',
@@ -596,7 +600,7 @@ extension on Translations {
 			'folders.emptyHint' => 'Add a folder to start syncing across your devices.',
 			'folders.errorLoad' => 'Could not load folders',
 			'folders.scanning' => 'Scanning...',
-			'folders.fileCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, zero: 'No files', one: '${n} file', other: '${n} files', ), 
+			'folders.folderSize' => ({required num n, required Object size}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, zero: 'Empty', one: '${size}', other: '${size}', ), 
 			'folders.scan' => 'Scan',
 			'folders.scanned' => ({required Object count}) => 'Scanned ${count} files',
 			'folders.alreadyAdded' => 'Folder already added',

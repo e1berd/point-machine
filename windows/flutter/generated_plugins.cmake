@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   dynamic_color
   flutter_webrtc
+  permission_handler_windows
   universal_ble
 )
 

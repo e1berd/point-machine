@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -22,7 +23,9 @@ Future<DesktopTray?> setupBackground({
     );
     try {
       await tray.setup();
-    } on Object {}
+    } on Object catch (error, stack) {
+      debugPrint('[pm.tray] setup failed: $error\n$stack');
+    }
     return tray;
   }
 

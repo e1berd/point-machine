@@ -77,8 +77,8 @@ class RemoteSyncController implements SyncController {
   Future<void> reloadConfig() async => _service.invoke(msgReloadConfig);
 
   @override
-  Future<int> folderCount(String folderId) async =>
-      await _call(opFolderCount, {'folderId': folderId}) as int? ?? 0;
+  Future<int> folderSize(String folderId) async =>
+      await _call(opFolderSize, {'folderId': folderId}) as int? ?? 0;
   @override
   Future<void> rescan(String folderId) async =>
       _service.invoke(msgRescan, {'folderId': folderId});

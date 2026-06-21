@@ -78,7 +78,7 @@ class LocalSyncController implements SyncController {
   Future<void> reloadConfig() => _host.restart();
 
   @override
-  Future<int> folderCount(String folderId) => _host.folderCount(folderId);
+  Future<int> folderSize(String folderId) => _host.folderSize(folderId);
   @override
   Future<void> rescan(String folderId) => _host.rescan(folderId);
 

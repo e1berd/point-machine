@@ -119,8 +119,8 @@ class _BackgroundBridge {
           FolderShare.fromJson((args['share'] as Map).cast<String, Object?>()),
           PairingPayload.fromJson((args['peer'] as Map).cast<String, Object?>()),
         );
-      case opFolderCount:
-        return _host.folderCount(args['folderId'] as String);
+      case opFolderSize:
+        return _host.folderSize(args['folderId'] as String);
       default:
         return false;
     }

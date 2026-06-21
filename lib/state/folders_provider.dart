@@ -15,12 +15,12 @@ final foldersProvider =
       FoldersNotifier.new,
     );
 
-final folderFileCountProvider = FutureProvider.family<int, String>((
+final folderSizeProvider = FutureProvider.family<int, String>((
   ref,
   folderId,
 ) async {
-  final controller = await ref.watch(syncControllerProvider.future);
-  return controller.folderCount(folderId);
+  final controller = await ref.read(syncControllerProvider.future);
+  return controller.folderSize(folderId);
 });
 
 final folderExistsProvider =
@@ -154,8 +154,8 @@ class FoldersNotifier extends AsyncNotifier<List<FolderConfig>> {
   Future<int> scan(FolderConfig folder) async {
     final controller = await ref.read(syncControllerProvider.future);
     await controller.rescan(folder.id);
-    ref.invalidate(folderFileCountProvider(folder.id));
-    return controller.folderCount(folder.id);
+    ref.invalidate(folderSizeProvider(folder.id));
+    return controller.folderSize(folder.id);
   }
 
   Future<void> _persist(List<FolderConfig> folders) async {

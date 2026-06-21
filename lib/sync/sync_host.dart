@@ -112,12 +112,17 @@ class SyncHost {
     _service.updateFolders(await _runtimes(await loadFolders(_dir)));
   }
 
-  Future<int> folderCount(String folderId) async {
+  Future<int> folderSize(String folderId) async {
     final entries = await FolderIndex(_database, folderId).all();
-    return entries.where((entry) => !entry.meta.deleted).length;
+    return entries
+        .where((entry) => !entry.meta.deleted)
+        .fold<int>(0, (sum, entry) => sum + entry.meta.size);
   }
 
-  Future<void> rescan(String folderId) => _service.rescanFolder(folderId);
+  Future<void> rescan(String folderId) async {
+    await reloadFolders();
+    await _service.rescanFolder(folderId);
+  }
 
   void setSyncActive(bool active) => _service.setSyncActive(active);
 

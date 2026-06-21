@@ -34,7 +34,7 @@ final FutureProvider<SyncController> syncControllerProvider =
       if (ref.mounted) ref.read(syncEventsProvider.notifier).add(event);
     }),
     controller.folderChanged.listen((folderId) {
-      if (ref.mounted) ref.invalidate(folderFileCountProvider(folderId));
+      if (ref.mounted) ref.invalidate(folderSizeProvider(folderId));
     }),
     controller.paired.listen((peer) {
       if (ref.mounted) ref.read(pairedPeersProvider.notifier).add(peer);
@@ -75,9 +75,19 @@ final syncBindingProvider = FutureProvider<void>((ref) async {
     final active = next.value;
     if (active != null) controller.setSyncActive(active);
   });
-  ref.listen(foldersProvider, (_, next) {
-    if (next.value != null) controller.reloadFolders();
-  });
+  ref.listen(
+    foldersProvider,
+    (prev, next) {
+      final folders = next.value;
+      if (folders != null) {
+        controller.reloadFolders();
+        for (final folder in folders) {
+          ref.invalidate(folderSizeProvider(folder.id));
+        }
+      }
+    },
+    fireImmediately: true,
+  );
   ref.listen(pairedPeersProvider, (_, next) {
     if (next.value != null) controller.reloadPeers();
   });

@@ -117,7 +117,7 @@ class SettingsScreen extends ConsumerWidget {
                                       : 1,
                                   onSelectedIndexChanged: (i) {
                                     if (i != null) {
-                                      LocaleSettings.setLocale(
+                                      notifier.setLocale(
                                         i == 0 ? AppLocale.en : AppLocale.ru,
                                       );
                                     }

@@ -14,7 +14,17 @@ class SyncEventsNotifier extends Notifier<List<SyncEvent>> {
   static const _limit = 100;
 
   @override
-  List<SyncEvent> build() => const [];
+  List<SyncEvent> build() {
+    _load();
+    return const [];
+  }
+
+  Future<void> _load() async {
+    final loaded = await ref
+        .read(activityLogControllerProvider)
+        .read(limit: _limit);
+    if (loaded.isNotEmpty && state.isEmpty) state = loaded;
+  }
 
   void add(SyncEvent event) {
     unawaited(ref.read(activityLogControllerProvider).append(event));

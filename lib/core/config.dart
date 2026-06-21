@@ -32,6 +32,7 @@ class AppConfig {
     this.scheduleStart = 720,
     this.scheduleEnd = 750,
     this.activityLogPath,
+    this.localeCode,
   });
 
   final ThemeMode themeMode;
@@ -46,6 +47,7 @@ class AppConfig {
   final int scheduleStart;
   final int scheduleEnd;
   final String? activityLogPath;
+  final String? localeCode;
 
   AppConfig copyWith({
     ThemeMode? themeMode,
@@ -60,6 +62,7 @@ class AppConfig {
     int? scheduleStart,
     int? scheduleEnd,
     String? activityLogPath,
+    String? localeCode,
   }) => AppConfig(
     themeMode: themeMode ?? this.themeMode,
     themeSchemeId: themeSchemeId ?? this.themeSchemeId,
@@ -73,6 +76,7 @@ class AppConfig {
     scheduleStart: scheduleStart ?? this.scheduleStart,
     scheduleEnd: scheduleEnd ?? this.scheduleEnd,
     activityLogPath: activityLogPath ?? this.activityLogPath,
+    localeCode: localeCode ?? this.localeCode,
   );
 
   Map<String, dynamic> toJson() => {
@@ -96,6 +100,7 @@ class AppConfig {
     'scheduleStart': scheduleStart,
     'scheduleEnd': scheduleEnd,
     if (activityLogPath != null) 'activityLogPath': activityLogPath,
+    if (localeCode != null) 'localeCode': localeCode,
   };
 
   factory AppConfig.fromJson(Map<String, dynamic> json) => AppConfig(
@@ -121,5 +126,6 @@ class AppConfig {
     scheduleStart: json['scheduleStart'] as int? ?? 720,
     scheduleEnd: json['scheduleEnd'] as int? ?? 750,
     activityLogPath: json['activityLogPath'] as String?,
+    localeCode: json['localeCode'] as String?,
   );
 }
