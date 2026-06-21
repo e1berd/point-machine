@@ -84,6 +84,11 @@ class ConfigNotifier extends Notifier<AppConfig> {
     _save();
   }
 
+  void setActivityLogPath(String path) {
+    state = state.copyWith(activityLogPath: path);
+    _save();
+  }
+
   void addIceServer(IceServer server) {
     state = state.copyWith(iceServers: [...state.iceServers, server]);
     _save();

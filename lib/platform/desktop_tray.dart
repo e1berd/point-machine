@@ -42,6 +42,22 @@ class DesktopTray {
       _window.show();
       _window.focus();
     });
+
+    _enableAutostart();
+  }
+
+  void hideToTray() => _window.hide();
+
+  void _enableAutostart() {
+    try {
+      if (!LaunchAtLogin.isSupported) return;
+      final launch = LaunchAtLogin(
+        id: 'tech.hammerhead.point_machine',
+        displayName: 'point-machine',
+      );
+      launch.setProgram(Platform.resolvedExecutable, const ['--hidden']);
+      if (!launch.isEnabled) launch.enable();
+    } on Object {}
   }
 
   Future<Image?> _resolveImage() async {
@@ -65,6 +81,7 @@ class DesktopTray {
   Future<void> _quit() async {
     await onQuit();
     _window.dispose();
+    exit(0);
   }
 
   Future<void> dispose() async {

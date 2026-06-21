@@ -6,7 +6,7 @@ import 'sync_provider.dart';
 final nearbyDevicesProvider = StreamProvider.autoDispose<List<LanPeer>>((
   ref,
 ) async* {
-  final service = await ref.watch(syncServiceProvider.future);
+  final service = await ref.watch(syncControllerProvider.future);
   final seen = <String, (LanPeer, DateTime)>{};
   yield const [];
   await for (final peer in service.nearby) {

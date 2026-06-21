@@ -2,10 +2,13 @@ import 'package:declar_ui/declar_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 
+import '../../core/models.dart';
 import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
+import '../../state/folders_provider.dart';
 import '../../state/identity_provider.dart';
 import '../../state/peers_provider.dart';
+import '../widgets/delete_swipe.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 
@@ -78,16 +81,36 @@ class DevicesScreen extends ConsumerWidget {
                         );
                       }
 
-                      return M3ECardList.builder(
+                      return M3EDismissibleCardList(
                         key: const ValueKey('peers-list'),
                         itemCount: items.length,
                         itemBuilder: (ctx, i) =>
                             _pairedDevice(context, ref, items[i]),
-                        outerRadius: 32,
-                        innerRadius: 12,
-                        gap: 8,
-                        color: colors.surfaceContainerHigh,
-                        padding: const EdgeInsets.all(16),
+                        onDismiss: (i, _) async {
+                          await ref
+                              .read(pairedPeersProvider.notifier)
+                              .remove(items[i].deviceId);
+                          return true;
+                        },
+                        style: M3EDismissibleCardStyle(
+                          outerRadius: 32,
+                          innerRadius: 12,
+                          gap: 8,
+                          color: colors.surfaceContainerHigh,
+                          padding: const EdgeInsets.all(16),
+                          backgroundBorderRadius: 32,
+                          secondaryBackgroundBorderRadius: 32,
+                          background: deleteSwipeBackground(
+                            context,
+                            Alignment.centerLeft,
+                            context.t.devices.remove,
+                          ),
+                          secondaryBackground: deleteSwipeBackground(
+                            context,
+                            Alignment.centerRight,
+                            context.t.devices.remove,
+                          ),
+                        ),
                         listPadding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                       );
                     },
@@ -184,32 +207,100 @@ class DevicesScreen extends ConsumerWidget {
     PairingPayload peer,
   ) {
     final colors = context.colors;
+    final folders = ref.watch(foldersProvider).value ?? const <FolderConfig>[];
+    final sharedFolders = [
+      for (final folder in folders)
+        if (folder.peerIds.contains(peer.deviceId)) folder,
+    ];
 
-    return Row(
+    return Column(
+      crossAxisAlignment: .stretch,
       children: [
-        ExpressiveIconContainer(
-          icon: Icons.devices_other_rounded,
-          color: colors.secondaryContainer,
-          foregroundColor: colors.onSecondaryContainer,
-        ).padding(right: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: .start,
-            children: [
-              Text(peer.name).size(16).weight(.w700),
-              Text(
-                peer.deviceId,
-              ).size(12).color(colors.onSurfaceVariant).overflow(.ellipsis),
-            ],
-          ),
+        Row(
+          children: [
+            ExpressiveIconContainer(
+              icon: Icons.devices_other_rounded,
+              color: colors.secondaryContainer,
+              foregroundColor: colors.onSecondaryContainer,
+            ).padding(right: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: .start,
+                children: [
+                  Text(peer.name).size(16).weight(.w700),
+                  Text(
+                    peer.deviceId,
+                  ).size(12).color(colors.onSurfaceVariant).overflow(.ellipsis),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: context.t.devices.remove,
+              onPressed: () =>
+                  ref.read(pairedPeersProvider.notifier).remove(peer.deviceId),
+              icon: const Icon(Icons.delete_outline_rounded),
+            ),
+          ],
         ),
-        IconButton(
-          tooltip: context.t.devices.remove,
-          onPressed: () =>
-              ref.read(pairedPeersProvider.notifier).remove(peer.deviceId),
-          icon: const Icon(Icons.delete_outline_rounded),
-        ),
+        if (sharedFolders.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          for (final folder in sharedFolders)
+            _FolderStatusChip(
+              folder: folder,
+              peer: peer,
+            ),
+        ],
       ],
+    );
+  }
+}
+
+class _FolderStatusChip extends ConsumerWidget {
+  const _FolderStatusChip({required this.folder, required this.peer});
+
+  final FolderConfig folder;
+  final PairingPayload peer;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final peerConfig = folder.peer(peer.deviceId);
+    final canSend = peerConfig?.canSend ?? true;
+    final canReceive = peerConfig?.canReceive ?? true;
+    final hasError = !canSend && !canReceive;
+    final dotColor = hasError ? colors.error : colors.primary;
+
+    final parts = <String>[];
+    if (canSend) parts.add(context.t.folders.sendFiles);
+    if (canReceive) parts.add(context.t.folders.receiveFiles);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          Icon(Icons.folder_rounded, size: 16, color: dotColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(folder.label).size(13).weight(.w500),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: hasError
+                  ? colors.errorContainer
+                  : colors.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              hasError
+                  ? context.t.folders.remoteMissing
+                  : parts.join(' · '),
+            ).size(11).weight(.w600).color(
+              hasError ? colors.onErrorContainer : colors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

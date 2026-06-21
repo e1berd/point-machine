@@ -14,12 +14,16 @@ class SyncEngine {
     required this.index,
     required this.store,
     required this.cipher,
+    this.canReceive = true,
+    this.canSend = true,
     this.onEvent,
   });
 
   final FolderIndex index;
   final FileStore store;
   final FolderCipher cipher;
+  final bool canReceive;
+  final bool canSend;
   final void Function(SyncEvent event)? onEvent;
 
   final _downloads = <String, _Download>{};
@@ -32,11 +36,15 @@ class SyncEngine {
     await for (final message in link.incoming) {
       switch (message) {
         case IndexSnapshot snapshot:
-          for (final entry in snapshot.entries) {
-            await _consider(entry, link);
+          if (canReceive) {
+            for (final entry in snapshot.entries) {
+              await _consider(entry, link);
+            }
           }
         case WantBlock want:
-          await _serve(want, link);
+          if (canSend) {
+            await _serve(want, link);
+          }
         case BlockPayload payload:
           await _receive(payload);
         case OpenLink():

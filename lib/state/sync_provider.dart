@@ -1,79 +1,90 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/models.dart';
-import '../storage/file_store.dart';
-import '../sync/index.dart';
-import '../sync/sync_service.dart';
-import '../transport/swarm.dart';
+import '../platform/local_sync_controller.dart';
+import '../platform/remote_sync_controller.dart';
+import '../platform/sync_controller.dart';
 import 'app_providers.dart';
 import 'events_provider.dart';
 import 'folders_provider.dart';
-import 'identity_provider.dart';
 import 'incoming_pair_provider.dart';
 import 'incoming_share_provider.dart';
 import 'peers_provider.dart';
 import 'sync_schedule_provider.dart';
 
-final syncServiceProvider = FutureProvider<SyncService>((ref) async {
-  final identity = await ref.watch(identityProvider.future);
-  final deviceName = await ref.watch(deviceNameProvider.future);
-  final config = ref.watch(configProvider);
-  final database = await ref.watch(databaseProvider.future);
-  final peers = await ref.read(pairedPeersProvider.future);
-  final folders = await ref.read(foldersProvider.future);
+bool get _useRemote => Platform.isAndroid || Platform.isIOS;
 
-  Future<List<FolderRuntime>> runtimes(List<FolderConfig> list) async => [
-    for (final folder in list)
-      FolderRuntime(
-        config: folder,
-        index: FolderIndex(database, folder.id),
-        store: IoFileStore(Directory(folder.localPath)),
-        infohash: await infohashFor(folder.swarmSecret),
-      ),
+final FutureProvider<SyncController> syncControllerProvider =
+    FutureProvider<SyncController>((ref) async {
+  final SyncController controller;
+  if (_useRemote) {
+    final remote = RemoteSyncController();
+    await remote.start();
+    controller = remote;
+  } else {
+    final local = LocalSyncController();
+    await local.start();
+    controller = local;
+  }
+
+  final subscriptions = <StreamSubscription<dynamic>>[
+    controller.events.listen((event) {
+      if (ref.mounted) ref.read(syncEventsProvider.notifier).add(event);
+    }),
+    controller.folderChanged.listen((folderId) {
+      if (ref.mounted) ref.invalidate(folderFileCountProvider(folderId));
+    }),
+    controller.paired.listen((peer) {
+      if (ref.mounted) ref.read(pairedPeersProvider.notifier).add(peer);
+    }),
+    controller.incomingPairs.listen((prompt) async {
+      final accepted = ref.mounted &&
+          await ref
+              .read(incomingPairProvider.notifier)
+              .request(prompt.requester, prompt.code);
+      controller.resolvePair(prompt.id, accepted);
+    }),
+    controller.incomingShares.listen((prompt) async {
+      final accepted = ref.mounted &&
+          await ref
+              .read(incomingShareProvider.notifier)
+              .request(prompt.share, prompt.fromDeviceId);
+      controller.resolveShare(prompt.id, accepted);
+    }),
   ];
 
-  final service = SyncService(
-    identity: identity,
-    deviceName: deviceName,
-    config: config,
-    peers: peers,
-    folders: await runtimes(folders),
-    onIncomingPair: (payload, code) async => ref.mounted &&
-        await ref.read(incomingPairProvider.notifier).request(payload, code),
-    onPaired: (peer) {
-      if (ref.mounted) ref.read(pairedPeersProvider.notifier).add(peer);
-    },
-    onIncomingShare: (share, fromDeviceId) async => ref.mounted &&
-        await ref
-            .read(incomingShareProvider.notifier)
-            .request(share, fromDeviceId),
-    onEvent: (event) {
-      if (ref.mounted) ref.read(syncEventsProvider.notifier).add(event);
-    },
-    onFolderChanged: (folderId) {
-      if (ref.mounted) ref.invalidate(folderFileCountProvider(folderId));
-    },
-  );
-  await service.start();
-  service.setSyncActive(
+  controller.setSyncActive(
     syncWindowActive(ref.read(configProvider), DateTime.now()),
   );
 
+  ref.onDispose(() async {
+    for (final subscription in subscriptions) {
+      await subscription.cancel();
+    }
+    await controller.dispose();
+  });
+  return controller;
+});
+
+final syncBindingProvider = FutureProvider<void>((ref) async {
+  final controller = await ref.watch(syncControllerProvider.future);
+
   ref.listen(syncActiveProvider, (_, next) {
     final active = next.value;
-    if (active != null) service.setSyncActive(active);
+    if (active != null) controller.setSyncActive(active);
   });
-  ref.listen(foldersProvider, (_, next) async {
-    final list = next.value;
-    if (list != null) service.updateFolders(await runtimes(list));
+  ref.listen(foldersProvider, (_, next) {
+    if (next.value != null) controller.reloadFolders();
   });
   ref.listen(pairedPeersProvider, (_, next) {
-    final list = next.value;
-    if (list != null) service.updatePeers(list);
+    if (next.value != null) controller.reloadPeers();
   });
-
-  ref.onDispose(service.stop);
-  return service;
+  ref.listen(
+    configProvider.select(
+      (c) => (c.lanDiscovery, c.dhtDiscovery, c.bluetoothDiscovery, c.iceServers),
+    ),
+    (_, _) => controller.reloadConfig(),
+  );
 });

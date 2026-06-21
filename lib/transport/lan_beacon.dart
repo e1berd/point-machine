@@ -109,8 +109,28 @@ class LanBeacon {
         '[pm.beacon] announce mcast=$multicast bcast=$broadcast '
         'port=$servicePort',
       );
+      if (multicast < 0 && broadcast < 0) {
+        _rebind();
+      }
     } on Object catch (error) {
       debugPrint('[pm.beacon] announce failed: $error');
+      _rebind();
+    }
+  }
+
+  Future<void> _rebind() async {
+    try {
+      _socket?.close();
+    } on Object {}
+    try {
+      final socket = await _bind();
+      socket.broadcastEnabled = true;
+      await _joinMulticast(socket);
+      socket.listen(_onEvent);
+      _socket = socket;
+      debugPrint('[pm.beacon] socket rebound');
+    } on Object catch (error) {
+      debugPrint('[pm.beacon] rebind failed: $error');
     }
   }
 

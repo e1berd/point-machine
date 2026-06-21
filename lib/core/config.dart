@@ -27,10 +27,11 @@ class AppConfig {
     this.dhtDiscovery = true,
     this.bluetoothDiscovery = true,
     this.syncInBackground = true,
-    this.syncNow = false,
+    this.syncNow = true,
     this.scheduleEnabled = false,
     this.scheduleStart = 720,
     this.scheduleEnd = 750,
+    this.activityLogPath,
   });
 
   final ThemeMode themeMode;
@@ -44,6 +45,7 @@ class AppConfig {
   final bool scheduleEnabled;
   final int scheduleStart;
   final int scheduleEnd;
+  final String? activityLogPath;
 
   AppConfig copyWith({
     ThemeMode? themeMode,
@@ -57,6 +59,7 @@ class AppConfig {
     bool? scheduleEnabled,
     int? scheduleStart,
     int? scheduleEnd,
+    String? activityLogPath,
   }) => AppConfig(
     themeMode: themeMode ?? this.themeMode,
     themeSchemeId: themeSchemeId ?? this.themeSchemeId,
@@ -69,6 +72,7 @@ class AppConfig {
     scheduleEnabled: scheduleEnabled ?? this.scheduleEnabled,
     scheduleStart: scheduleStart ?? this.scheduleStart,
     scheduleEnd: scheduleEnd ?? this.scheduleEnd,
+    activityLogPath: activityLogPath ?? this.activityLogPath,
   );
 
   Map<String, dynamic> toJson() => {
@@ -91,6 +95,7 @@ class AppConfig {
     'scheduleEnabled': scheduleEnabled,
     'scheduleStart': scheduleStart,
     'scheduleEnd': scheduleEnd,
+    if (activityLogPath != null) 'activityLogPath': activityLogPath,
   };
 
   factory AppConfig.fromJson(Map<String, dynamic> json) => AppConfig(
@@ -111,9 +116,10 @@ class AppConfig {
     dhtDiscovery: json['dhtDiscovery'] as bool? ?? true,
     bluetoothDiscovery: json['bluetoothDiscovery'] as bool? ?? true,
     syncInBackground: json['syncInBackground'] as bool? ?? true,
-    syncNow: json['syncNow'] as bool? ?? false,
+    syncNow: json['syncNow'] as bool? ?? true,
     scheduleEnabled: json['scheduleEnabled'] as bool? ?? false,
     scheduleStart: json['scheduleStart'] as int? ?? 720,
     scheduleEnd: json['scheduleEnd'] as int? ?? 750,
+    activityLogPath: json['activityLogPath'] as String?,
   );
 }

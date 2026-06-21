@@ -43,7 +43,13 @@ folders:
   scan: Scan
   scanned: 'Scanned {count} files'
   alreadyAdded: Folder already added
+  openFolder: Open folder
+  openFailed: Could not open folder
   remove: Remove folder
+  sendFiles: Send files
+  receiveFiles: Receive files
+  remoteMissing: Not available on remote
+  remoteAvailable: Available on remote
 
 pair:
   scanHint: Scan this code on another device
@@ -94,6 +100,7 @@ share:
 activity:
   syncedToday: '{bytes} synced today'
   upToDate: All devices up to date
+  remove: Remove entry
   empty: Nothing syncing
   emptyHint: Transfers and conflicts will appear here as they happen.
   eventConnecting: Connecting
@@ -132,6 +139,14 @@ settings:
   bluetoothSubtitle: Use nearby Bluetooth when network sync fails
   backgroundTitle: Sync in background
   backgroundSubtitle: Keep syncing when app is not focused
+  logsTitle: Activity logs
+  logPath: Log file
+  changeLogPath: Change path
+  openLogLocation: Open location
+  clearLogs: Clear logs
+  logPathChanged: Log path updated
+  logsCleared: Logs cleared
+  logOpenFailed: Could not open log location
 
   signaling: Signaling (STUN / TURN)
   defaultStun: Using default STUN server

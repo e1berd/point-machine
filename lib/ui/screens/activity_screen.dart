@@ -8,6 +8,7 @@ import '../../state/events_provider.dart';
 import '../../state/peers_provider.dart';
 import '../../state/sync_schedule_provider.dart';
 import '../../sync/sync_event.dart';
+import '../widgets/delete_swipe.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 
@@ -33,20 +34,41 @@ class ActivityScreen extends ConsumerWidget {
                     title: context.t.activity.empty,
                     message: context.t.activity.emptyHint,
                   )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 96),
-                    child: ExpressiveReveal(
-                      child: M3ECardList(
-                        itemCount: events.length,
-                        itemBuilder: (ctx, i) =>
-                            _row(context, events[i], names),
+                : ExpressiveReveal(
+                    child: M3EDismissibleCardList(
+                      key: const ValueKey('activity-list'),
+                      itemCount: events.length,
+                      itemBuilder: (context, index) => _ActivityEventRow(
+                        event: events[index],
+                        names: names,
+                      ),
+                      onDismiss: (index, _) async {
+                        ref.read(syncEventsProvider.notifier).removeAt(index);
+                        return true;
+                      },
+                      style: M3EDismissibleCardStyle(
                         outerRadius: 32,
-                        innerRadius: 12,
+                        innerRadius: 8,
                         gap: 0,
                         color: context.colors.surfaceContainerHigh,
-                        padding: const EdgeInsets.all(16),
-                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        backgroundBorderRadius: 32,
+                        secondaryBackgroundBorderRadius: 32,
+                        background: deleteSwipeBackground(
+                          context,
+                          Alignment.centerLeft,
+                          context.t.activity.remove,
+                        ),
+                        secondaryBackground: deleteSwipeBackground(
+                          context,
+                          Alignment.centerRight,
+                          context.t.activity.remove,
+                        ),
                       ),
+                      listPadding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                     ),
                   ),
           ),
@@ -54,115 +76,155 @@ class ActivityScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _row(
-    BuildContext context,
-    SyncEvent event,
-    Map<String, String> names,
-  ) {
+class _ActivityEventRow extends StatelessWidget {
+  const _ActivityEventRow({required this.event, required this.names});
+
+  final SyncEvent event;
+  final Map<String, String> names;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final (icon, background, foreground) = _appearance(context, event.kind);
-    return Row(
-      children: [
-        ExpressiveIconContainer(
-          icon: icon,
-          color: background,
-          foregroundColor: foreground,
-          size: 44,
-          radius: 14,
-        ).padding(right: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: .start,
-            children: [
-              Text(
-                _title(context, event.kind),
-              ).size(14).weight(.w700).color(colors.onSurface),
-              Text(_subtitle(context, event, names))
-                  .size(12)
-                  .color(colors.onSurfaceVariant)
-                  .maxLines(1)
-                  .overflow(.ellipsis),
-            ],
-          ),
-        ),
-        Text(
-          _time(event.at),
-        ).size(11).weight(.w600).color(colors.onSurfaceVariant),
-      ],
-    );
-  }
-
-  String _title(BuildContext context, SyncEventKind kind) => switch (kind) {
-    SyncEventKind.connecting => context.t.activity.eventConnecting,
-    SyncEventKind.connected => context.t.activity.eventConnected,
-    SyncEventKind.disconnected => context.t.activity.eventDisconnected,
-    SyncEventKind.received => context.t.activity.eventReceived,
-    SyncEventKind.conflict => context.t.activity.eventConflict,
-  };
-
-  String _subtitle(
-    BuildContext context,
-    SyncEvent event,
-    Map<String, String> names,
-  ) {
     final peer = event.peerId == null
         ? null
         : names[event.peerId] ?? event.peerId;
     final transport = event.transport == null
         ? null
         : _transportLabel(context, event.transport!);
-    final parts = [?event.path, ?peer, ?transport];
-    return parts.join(' · ');
+    final details = [?event.path, ?peer];
+
+    return Row(
+      crossAxisAlignment: .start,
+      children: [
+        ExpressiveIconContainer(
+          icon: icon,
+          color: background,
+          foregroundColor: foreground,
+          size: 52,
+          radius: 18,
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              Row(
+                crossAxisAlignment: .start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      _title(context, event.kind),
+                    ).size(15).weight(.w800).color(colors.onSurface),
+                  ),
+                  const SizedBox(width: 10),
+                  _TimePill(time: _time(event.at)),
+                ],
+              ),
+              if (details.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(details.join(' · '))
+                    .size(13)
+                    .color(colors.onSurfaceVariant)
+                    .maxLines(2)
+                    .overflow(.ellipsis),
+              ],
+              if (transport != null) ...[
+                const SizedBox(height: 10),
+                ExpressiveStatusPill(
+                  label: transport,
+                  icon: _transportIcon(event.transport!),
+                  color: colors.surfaceContainerHighest,
+                  foregroundColor: colors.onSurfaceVariant,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
   }
+}
 
-  String _transportLabel(BuildContext context, String transport) =>
-      switch (transport) {
-        'tcp' => context.t.activity.transportTcp,
-        'lan' => context.t.activity.transportLan,
-        'bluetooth' => context.t.activity.transportBluetooth,
-        _ => transport,
-      };
+class _TimePill extends StatelessWidget {
+  const _TimePill({required this.time});
 
-  String _time(DateTime at) {
-    final local = at.toLocal();
-    return '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
-  }
+  final String time;
 
-  (IconData, Color, Color) _appearance(
-    BuildContext context,
-    SyncEventKind kind,
-  ) {
+  @override
+  Widget build(BuildContext context) {
     final colors = context.colors;
-    return switch (kind) {
-      SyncEventKind.connecting => (
-        Icons.sync_rounded,
-        colors.secondaryContainer,
-        colors.onSecondaryContainer,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(100),
       ),
-      SyncEventKind.received => (
-        Icons.download_done_rounded,
-        colors.primaryContainer,
-        colors.onPrimaryContainer,
-      ),
-      SyncEventKind.conflict => (
-        Icons.warning_amber_rounded,
-        colors.errorContainer,
-        colors.onErrorContainer,
-      ),
-      SyncEventKind.connected => (
-        Icons.link_rounded,
-        colors.tertiaryContainer,
-        colors.onTertiaryContainer,
-      ),
-      SyncEventKind.disconnected => (
-        Icons.link_off_rounded,
-        colors.surfaceContainerHighest,
-        colors.onSurfaceVariant,
-      ),
-    };
+      child: Text(time).size(11).weight(.w800).color(colors.onSurfaceVariant),
+    );
   }
+}
+
+String _title(BuildContext context, SyncEventKind kind) => switch (kind) {
+  SyncEventKind.connecting => context.t.activity.eventConnecting,
+  SyncEventKind.connected => context.t.activity.eventConnected,
+  SyncEventKind.disconnected => context.t.activity.eventDisconnected,
+  SyncEventKind.received => context.t.activity.eventReceived,
+  SyncEventKind.conflict => context.t.activity.eventConflict,
+};
+
+String _transportLabel(BuildContext context, String transport) =>
+    switch (transport) {
+      'tcp' => context.t.activity.transportTcp,
+      'lan' => context.t.activity.transportLan,
+      'bluetooth' => context.t.activity.transportBluetooth,
+      _ => transport,
+    };
+
+IconData _transportIcon(String transport) => switch (transport) {
+  'tcp' => Icons.settings_ethernet_rounded,
+  'lan' => Icons.router_rounded,
+  'bluetooth' => Icons.bluetooth_rounded,
+  _ => Icons.hub_rounded,
+};
+
+String _time(DateTime at) {
+  final local = at.toLocal();
+  return '${local.hour.toString().padLeft(2, '0')}:'
+      '${local.minute.toString().padLeft(2, '0')}';
+}
+
+(IconData, Color, Color) _appearance(BuildContext context, SyncEventKind kind) {
+  final colors = context.colors;
+  return switch (kind) {
+    SyncEventKind.connecting => (
+      Icons.sync_rounded,
+      colors.secondaryContainer,
+      colors.onSecondaryContainer,
+    ),
+    SyncEventKind.received => (
+      Icons.download_done_rounded,
+      colors.primaryContainer,
+      colors.onPrimaryContainer,
+    ),
+    SyncEventKind.conflict => (
+      Icons.warning_amber_rounded,
+      colors.errorContainer,
+      colors.onErrorContainer,
+    ),
+    SyncEventKind.connected => (
+      Icons.link_rounded,
+      colors.tertiaryContainer,
+      colors.onTertiaryContainer,
+    ),
+    SyncEventKind.disconnected => (
+      Icons.link_off_rounded,
+      colors.surfaceContainerHighest,
+      colors.onSurfaceVariant,
+    ),
+  };
 }
 
 String _formatMinutes(int minutes) =>

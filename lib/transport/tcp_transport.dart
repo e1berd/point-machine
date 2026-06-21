@@ -54,13 +54,14 @@ class DirectTcpTransport {
 
   void _accept(Socket socket) {
     unawaited(() async {
-      final link = TcpPeerLink(peerId: 'pending', socket: socket);
+      final opened = Completer<OpenLink>();
+      final link = TcpPeerLink(
+        peerId: 'pending',
+        socket: socket,
+        onOpen: opened.complete,
+      );
       try {
-        final open = await link.incoming
-            .where((message) => message is OpenLink)
-            .cast<OpenLink>()
-            .first
-            .timeout(const Duration(seconds: 8));
+        final open = await opened.future.timeout(const Duration(seconds: 8));
         _incoming.add(
           DirectTcpIncomingLink(
             peerId: open.deviceId,
@@ -82,27 +83,39 @@ class DirectTcpTransport {
 }
 
 class TcpPeerLink implements PeerLink {
-  TcpPeerLink({required this.peerId, required this._socket}) {
+  TcpPeerLink({
+    required this.peerId,
+    required this._socket,
+    void Function(OpenLink open)? onOpen,
+  }) {
     _subscription = _socket.listen(
       (chunk) => _reader.add(Uint8List.fromList(chunk)),
       onError: (_) => closeIncoming(),
       onDone: closeIncoming,
       cancelOnError: true,
     );
-    _reader.messages.listen(
-      _incoming.add,
+    _readerSubscription = _reader.messages.listen(
+      (message) {
+        if (message is OpenLink) {
+          onOpen?.call(message);
+        } else {
+          _incoming.add(message);
+        }
+      },
       onError: _incoming.addError,
       onDone: closeIncoming,
     );
+    unawaited(_socket.done.catchError((Object _) => _socket));
   }
 
   @override
   final String peerId;
 
   final Socket _socket;
-  final _incoming = StreamController<SyncMessage>.broadcast();
+  final _incoming = StreamController<SyncMessage>();
   final _reader = _TcpFrameReader();
   late final StreamSubscription<List<int>> _subscription;
+  late final StreamSubscription<SyncMessage> _readerSubscription;
   Future<void> _sendQueue = Future.value();
 
   @override
@@ -112,19 +125,25 @@ class TcpPeerLink implements PeerLink {
   Future<void> send(SyncMessage message) {
     final encoded = message.encode();
     final result = _sendQueue.then((_) async {
-      final header = ByteData(4)..setUint32(0, encoded.length);
-      _socket.add(header.buffer.asUint8List());
-      _socket.add(encoded);
-      await _socket.flush();
+      try {
+        final header = ByteData(4)..setUint32(0, encoded.length);
+        _socket.add(header.buffer.asUint8List());
+        _socket.add(encoded);
+        await _socket.flush();
+      } on Object {
+        await closeIncoming();
+      }
     });
     _sendQueue = result.catchError((Object _) {});
-    return result;
+    return _sendQueue;
   }
 
   @override
   Future<void> close() async {
-    await _subscription.cancel();
-    await _socket.close();
+    _socket.destroy();
+    unawaited(_subscription.cancel());
+    await _readerSubscription.cancel();
+    await _reader.close();
     await closeIncoming();
   }
 
@@ -140,8 +159,13 @@ class _TcpFrameReader {
   Stream<SyncMessage> get messages => _messages.stream;
 
   void add(Uint8List chunk) {
+    if (_messages.isClosed) return;
     _buffer.add(chunk);
     _drain();
+  }
+
+  Future<void> close() async {
+    if (!_messages.isClosed) await _messages.close();
   }
 
   void _drain() {

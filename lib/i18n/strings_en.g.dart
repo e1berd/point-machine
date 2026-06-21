@@ -194,8 +194,26 @@ class Translations$folders$en {
 	/// en: 'Folder already added'
 	String get alreadyAdded => 'Folder already added';
 
+	/// en: 'Open folder'
+	String get openFolder => 'Open folder';
+
+	/// en: 'Could not open folder'
+	String get openFailed => 'Could not open folder';
+
 	/// en: 'Remove folder'
 	String get remove => 'Remove folder';
+
+	/// en: 'Send files'
+	String get sendFiles => 'Send files';
+
+	/// en: 'Receive files'
+	String get receiveFiles => 'Receive files';
+
+	/// en: 'Not available on remote'
+	String get remoteMissing => 'Not available on remote';
+
+	/// en: 'Available on remote'
+	String get remoteAvailable => 'Available on remote';
 }
 
 // Path: pair
@@ -356,6 +374,9 @@ class Translations$activity$en {
 	/// en: 'All devices up to date'
 	String get upToDate => 'All devices up to date';
 
+	/// en: 'Remove entry'
+	String get remove => 'Remove entry';
+
 	/// en: 'Nothing syncing'
 	String get empty => 'Nothing syncing';
 
@@ -473,6 +494,30 @@ class Translations$settings$en {
 	/// en: 'Keep syncing when app is not focused'
 	String get backgroundSubtitle => 'Keep syncing when app is not focused';
 
+	/// en: 'Activity logs'
+	String get logsTitle => 'Activity logs';
+
+	/// en: 'Log file'
+	String get logPath => 'Log file';
+
+	/// en: 'Change path'
+	String get changeLogPath => 'Change path';
+
+	/// en: 'Open location'
+	String get openLogLocation => 'Open location';
+
+	/// en: 'Clear logs'
+	String get clearLogs => 'Clear logs';
+
+	/// en: 'Log path updated'
+	String get logPathChanged => 'Log path updated';
+
+	/// en: 'Logs cleared'
+	String get logsCleared => 'Logs cleared';
+
+	/// en: 'Could not open log location'
+	String get logOpenFailed => 'Could not open log location';
+
 	/// en: 'Signaling (STUN / TURN)'
 	String get signaling => 'Signaling (STUN / TURN)';
 
@@ -555,7 +600,13 @@ extension on Translations {
 			'folders.scan' => 'Scan',
 			'folders.scanned' => ({required Object count}) => 'Scanned ${count} files',
 			'folders.alreadyAdded' => 'Folder already added',
+			'folders.openFolder' => 'Open folder',
+			'folders.openFailed' => 'Could not open folder',
 			'folders.remove' => 'Remove folder',
+			'folders.sendFiles' => 'Send files',
+			'folders.receiveFiles' => 'Receive files',
+			'folders.remoteMissing' => 'Not available on remote',
+			'folders.remoteAvailable' => 'Available on remote',
 			'pair.scanHint' => 'Scan this code on another device',
 			'pair.scanButton' => 'Scan a device',
 			'pair.scanInstruction' => 'Point the camera at another device QR code',
@@ -600,6 +651,7 @@ extension on Translations {
 			'share.declined' => 'Share declined',
 			'activity.syncedToday' => ({required Object bytes}) => '${bytes} synced today',
 			'activity.upToDate' => 'All devices up to date',
+			'activity.remove' => 'Remove entry',
 			'activity.empty' => 'Nothing syncing',
 			'activity.emptyHint' => 'Transfers and conflicts will appear here as they happen.',
 			'activity.eventConnecting' => 'Connecting',
@@ -633,6 +685,14 @@ extension on Translations {
 			'settings.bluetoothSubtitle' => 'Use nearby Bluetooth when network sync fails',
 			'settings.backgroundTitle' => 'Sync in background',
 			'settings.backgroundSubtitle' => 'Keep syncing when app is not focused',
+			'settings.logsTitle' => 'Activity logs',
+			'settings.logPath' => 'Log file',
+			'settings.changeLogPath' => 'Change path',
+			'settings.openLogLocation' => 'Open location',
+			'settings.clearLogs' => 'Clear logs',
+			'settings.logPathChanged' => 'Log path updated',
+			'settings.logsCleared' => 'Logs cleared',
+			'settings.logOpenFailed' => 'Could not open log location',
 			'settings.signaling' => 'Signaling (STUN / TURN)',
 			'settings.defaultStun' => 'Using default STUN server',
 			'settings.addServer' => 'Add server',

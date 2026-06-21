@@ -78,6 +78,7 @@ class SyncService {
       <String, ({InternetAddress address, int port, int? syncPort})>{};
   final _shared = <String>{};
   final _activated = <String>{};
+  final _lastSynced = <String, DateTime>{};
   final _transportCoordinator = SyncTransportCoordinator();
   late final DirectTcpTransport _tcp = DirectTcpTransport(
     deviceId: identity.id,
@@ -150,13 +151,17 @@ class SyncService {
     }
   }
 
-  void updatePeers(List<PairingPayload> next) => peers = next;
+  void updatePeers(List<PairingPayload> next) {
+    peers = next;
+    if (_syncActive) _dialAllGranted();
+  }
 
   void updateFolders(List<FolderRuntime> next) {
     folders = next;
     for (final folder in next) {
       _activateFolder(folder);
     }
+    if (_syncActive) _dialAllGranted();
   }
 
   void _activateFolder(FolderRuntime folder) {
@@ -203,10 +208,16 @@ class SyncService {
 
   void _scheduleRescan(FolderRuntime folder) {
     _debounce[folder.config.id]?.cancel();
+    _lastSynced.removeWhere((key, _) => key.endsWith('/${folder.config.id}'));
     _debounce[folder.config.id] = Timer(
       const Duration(milliseconds: 700),
       () => _rescan(folder),
     );
+  }
+
+  Future<void> rescanFolder(String folderId) async {
+    final folder = _folderById(folderId);
+    if (folder != null) await _rescan(folder);
   }
 
   Future<void> _rescan(FolderRuntime folder) async {
@@ -251,7 +262,8 @@ class SyncService {
       final peer = _peerById(entry.key);
       if (peer == null) continue;
       for (final folder in folders) {
-        if (folder.config.peerIds.contains(peer.deviceId)) {
+        if (folder.config.peerIds.contains(peer.deviceId) &&
+            _canStart(peer.deviceId, folder.config.id)) {
           _dial(
             entry.value.address,
             entry.value.port,
@@ -278,10 +290,24 @@ class SyncService {
     unawaited(_pushShares(peer));
     if (!_syncActive) return;
     for (final folder in folders) {
-      if (folder.config.peerIds.contains(peer.deviceId)) {
+      if (folder.config.peerIds.contains(peer.deviceId) &&
+          _canStart(peer.deviceId, folder.config.id)) {
         _dial(peer.address, peer.port, folder, syncPort: peer.syncPort);
       }
     }
+  }
+
+  bool _canStart(String peerId, String folderId) {
+    final key = _syncKey(peerId, folderId);
+    if (_active.contains(key)) return false;
+    final last = _lastSynced[key];
+    if (last == null) return true;
+    return DateTime.now().difference(last) > const Duration(seconds: 30);
+  }
+
+  String _syncKey(String peerId, String folderId) {
+    final pair = [identity.id, peerId]..sort();
+    return '${pair.first}/${pair.last}/$folderId';
   }
 
   Future<void> _pushShares(LanPeer peer) async {
@@ -398,6 +424,10 @@ class SyncService {
         return;
       }
       await channel.send(SignalHello(folder.infohash, identity.id));
+      if (!_canStart(hello.deviceId, folder.config.id)) {
+        await channel.close();
+        return;
+      }
       await _establish(channel, folder, hello, null, null, null);
     } on Object {
       await channel.close();
@@ -471,7 +501,7 @@ class SyncService {
         hello.infohash == folder.infohash &&
         peer != null &&
         folder.config.peerIds.contains(peer.deviceId);
-    final key = peer == null ? null : '${peer.deviceId}/${folder.config.id}';
+    final key = peer == null ? null : _syncKey(peer.deviceId, folder.config.id);
     _log(
       'establish "${folder.config.label}" allowed=$allowed '
       'active=${key != null && _active.contains(key)}',
@@ -564,10 +594,13 @@ class SyncService {
       ),
     );
     final context = (peerId: peer.deviceId, folderId: folder.config.id);
+    final peerConfig = folder.config.peer(peer.deviceId);
     final engine = SyncEngine(
       index: folder.index,
       store: folder.store,
       cipher: cipher,
+      canReceive: peerConfig?.canReceive ?? true,
+      canSend: peerConfig?.canSend ?? true,
       onEvent: (event) => onEvent?.call(
         event.withContext(
           peerId: context.peerId,
@@ -587,12 +620,20 @@ class SyncService {
       ),
     );
     _log('sync started "${folder.config.label}" via $transportLabel');
+    var completed = false;
     try {
       await engine.sync(link);
+      completed = true;
       _log('sync finished "${folder.config.label}"');
+    } on Object catch (error) {
+      _log('sync failed "${folder.config.label}" via $transportLabel: $error');
     } finally {
       _sessions.remove(session);
       await link.close();
+      if (completed) {
+        _lastSynced[_syncKey(context.peerId, context.folderId)] =
+            DateTime.now();
+      }
       onEvent?.call(
         SyncEvent(
           SyncEventKind.disconnected,
@@ -605,24 +646,26 @@ class SyncService {
   }
 
   Future<void> _acceptBluetooth(BluetoothIncomingLink incoming) async {
-    final folder = _folderById(incoming.folderId);
-    final peer = _peerById(incoming.peerId);
     final key = '${incoming.peerId}/${incoming.folderId}';
-    final allowed =
-        _syncActive &&
-        folder != null &&
-        peer != null &&
-        folder.config.peerIds.contains(peer.deviceId);
-    _log(
-      'bluetooth incoming "${folder?.config.label ?? incoming.folderId}" '
-      'from ${incoming.peerId} allowed=$allowed active=${_active.contains(key)}',
-    );
-    if (!allowed || _active.contains(key)) {
-      await incoming.link.close();
-      return;
-    }
-    _active.add(key);
+    var activeAdded = false;
     try {
+      final folder = _folderById(incoming.folderId);
+      final peer = _peerById(incoming.peerId);
+      final allowed =
+          _syncActive &&
+          folder != null &&
+          peer != null &&
+          folder.config.peerIds.contains(peer.deviceId);
+      _log(
+        'bluetooth incoming "${folder?.config.label ?? incoming.folderId}" '
+        'from ${incoming.peerId} allowed=$allowed active=${_active.contains(key)}',
+      );
+      if (!allowed || _active.contains(key)) {
+        await incoming.link.close();
+        return;
+      }
+      _active.add(key);
+      activeAdded = true;
       await _runLink(
         folder: folder,
         peer: peer,
@@ -630,30 +673,34 @@ class SyncService {
         transport: SyncTransportKind.bluetooth.id,
         transportLabel: SyncTransportKind.bluetooth.label,
       );
+    } on Object catch (error) {
+      _log('bluetooth incoming failed: $error');
     } finally {
-      _active.remove(key);
+      if (activeAdded) _active.remove(key);
     }
   }
 
   Future<void> _acceptTcp(DirectTcpIncomingLink incoming) async {
-    final folder = _folderById(incoming.folderId);
-    final peer = _peerById(incoming.peerId);
     final key = '${incoming.peerId}/${incoming.folderId}';
-    final allowed =
-        _syncActive &&
-        folder != null &&
-        peer != null &&
-        folder.config.peerIds.contains(peer.deviceId);
-    _log(
-      'tcp incoming "${folder?.config.label ?? incoming.folderId}" '
-      'from ${incoming.peerId} allowed=$allowed active=${_active.contains(key)}',
-    );
-    if (!allowed || _active.contains(key)) {
-      await incoming.link.close();
-      return;
-    }
-    _active.add(key);
+    var activeAdded = false;
     try {
+      final folder = _folderById(incoming.folderId);
+      final peer = _peerById(incoming.peerId);
+      final allowed =
+          _syncActive &&
+          folder != null &&
+          peer != null &&
+          folder.config.peerIds.contains(peer.deviceId);
+      _log(
+        'tcp incoming "${folder?.config.label ?? incoming.folderId}" '
+        'from ${incoming.peerId} allowed=$allowed active=${_active.contains(key)}',
+      );
+      if (!allowed || _active.contains(key)) {
+        await incoming.link.close();
+        return;
+      }
+      _active.add(key);
+      activeAdded = true;
       await _runLink(
         folder: folder,
         peer: peer,
@@ -661,8 +708,10 @@ class SyncService {
         transport: SyncTransportKind.directTcp.id,
         transportLabel: SyncTransportKind.directTcp.label,
       );
+    } on Object catch (error) {
+      _log('tcp incoming failed: $error');
     } finally {
-      _active.remove(key);
+      if (activeAdded) _active.remove(key);
     }
   }
 

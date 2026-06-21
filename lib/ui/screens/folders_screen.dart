@@ -7,6 +7,7 @@ import 'package:m3e_core/m3e_core.dart';
 import '../../core/models.dart';
 import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
+import '../../platform/open_path.dart';
 import '../../state/folders_provider.dart';
 import '../../state/peers_provider.dart';
 import '../../state/share_controller.dart';
@@ -77,10 +78,14 @@ class FoldersScreen extends ConsumerWidget {
                           padding: const EdgeInsets.all(20),
                           backgroundBorderRadius: 32,
                           secondaryBackgroundBorderRadius: 32,
-                          background:
-                              _deleteBackground(context, Alignment.centerLeft),
-                          secondaryBackground:
-                              _deleteBackground(context, Alignment.centerRight),
+                          background: _deleteBackground(
+                            context,
+                            Alignment.centerLeft,
+                          ),
+                          secondaryBackground: _deleteBackground(
+                            context,
+                            Alignment.centerRight,
+                          ),
                         ),
                         listPadding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                       ),
@@ -111,10 +116,9 @@ class FoldersScreen extends ConsumerWidget {
             children: [
               Icon(Icons.delete_rounded, color: colors.onErrorContainer),
               const SizedBox(width: 10),
-              Text(context.t.folders.remove)
-                  .size(14)
-                  .weight(.w700)
-                  .color(colors.onErrorContainer),
+              Text(
+                context.t.folders.remove,
+              ).size(14).weight(.w700).color(colors.onErrorContainer),
             ],
           ),
         ),
@@ -189,7 +193,9 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
                     children: [
                       _statusDot(
                         context,
-                        ref.watch(folderExistsProvider(folder.localPath)).value ??
+                        ref
+                                .watch(folderExistsProvider(folder.localPath))
+                                .value ??
                             false,
                       ),
                       const SizedBox(width: 8),
@@ -209,6 +215,11 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
                       .overflow(.ellipsis),
                 ],
               ),
+            ),
+            IconButton(
+              tooltip: context.t.folders.openFolder,
+              onPressed: () => _openFolder(context, folder),
+              icon: const Icon(Icons.folder_open_rounded),
             ),
             IconButton(
               tooltip: context.t.folders.manageAccess,
@@ -245,8 +256,10 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
                           mainAxisSize: .min,
                           children: [
                             const ExpressiveLoadingIndicator(
-                              constraints:
-                                  BoxConstraints.tightFor(width: 18, height: 18),
+                              constraints: BoxConstraints.tightFor(
+                                width: 18,
+                                height: 18,
+                              ),
                             ),
                             const SizedBox(width: 10),
                             Text(context.t.folders.scanning)
@@ -272,7 +285,11 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
                       .scan(folder);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.t.folders.scanned(count: scanned))),
+                      SnackBar(
+                        content: Text(
+                          context.t.folders.scanned(count: scanned),
+                        ),
+                      ),
                     );
                   }
                 },
@@ -293,16 +310,25 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
       ],
     );
   }
+
+  Future<void> _openFolder(BuildContext context, FolderConfig folder) async {
+    final opened = await openFolderInFileManager(folder.localPath);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.folders.openFailed)));
+    }
+  }
 }
 
 Widget _statusDot(BuildContext context, bool ok) => Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: ok ? const Color(0xFF34A853) : context.colors.error,
-      ),
-    );
+  width: 10,
+  height: 10,
+  decoration: BoxDecoration(
+    shape: BoxShape.circle,
+    color: ok ? const Color(0xFF34A853) : context.colors.error,
+  ),
+);
 
 void _showAccess(BuildContext context, WidgetRef ref, FolderConfig folder) {
   showModalBottomSheet<void>(
@@ -331,7 +357,8 @@ class _FolderAccessSheet extends ConsumerWidget {
     if (match == null) return const SizedBox.shrink();
     final current = match;
 
-    final peers = ref.watch(pairedPeersProvider).value ?? const <PairingPayload>[];
+    final peers =
+        ref.watch(pairedPeersProvider).value ?? const <PairingPayload>[];
     final exists =
         ref.watch(folderExistsProvider(current.localPath)).value ?? false;
 
@@ -349,49 +376,113 @@ class _FolderAccessSheet extends ConsumerWidget {
                 _statusDot(context, exists),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(context.t.folders.localFolder).size(15).weight(.w600),
+                  child: Text(
+                    context.t.folders.localFolder,
+                  ).size(15).weight(.w600),
                 ),
-                Text(exists
-                        ? context.t.folders.localAvailable
-                        : context.t.folders.localMissing)
-                    .size(13)
-                    .color(colors.onSurfaceVariant),
+                Text(
+                  exists
+                      ? context.t.folders.localAvailable
+                      : context.t.folders.localMissing,
+                ).size(13).color(colors.onSurfaceVariant),
               ],
             ),
             const Divider(height: 28),
-            Text(context.t.folders.access)
-                .size(13)
-                .weight(.w800)
-                .letterSpacing(.5)
-                .color(colors.primary),
+            Text(
+              context.t.folders.access,
+            ).size(13).weight(.w800).letterSpacing(.5).color(colors.primary),
             const SizedBox(height: 4),
             if (peers.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(context.t.folders.noPeers)
-                    .size(14)
-                    .color(colors.onSurfaceVariant)
-                    .align(.center),
+                child: Text(
+                  context.t.folders.noPeers,
+                ).size(14).color(colors.onSurfaceVariant).align(.center),
               )
             else
               for (final peer in peers)
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  secondary:
-                      _statusDot(context, current.peerIds.contains(peer.deviceId)),
-                  title: Text(peer.name),
-                  value: current.peerIds.contains(peer.deviceId),
-                  onChanged: (granted) =>
-                      _toggleAccess(ref, current, peer, granted),
+                _PeerAccessTile(
+                  folder: current,
+                  peer: peer,
                 ),
           ],
         ),
       ),
     );
   }
+}
+
+class _PeerAccessTile extends ConsumerWidget {
+  const _PeerAccessTile({required this.folder, required this.peer});
+
+  final FolderConfig folder;
+  final PairingPayload peer;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final hasAccess = folder.peerIds.contains(peer.deviceId);
+    final peerConfig = folder.peer(peer.deviceId);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: .stretch,
+        children: [
+          Row(
+            children: [
+              _statusDot(context, hasAccess),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(peer.name).size(15).weight(.w600),
+              ),
+              Switch(
+                value: hasAccess,
+                onChanged: (granted) => _toggleAccess(ref, folder, peer, granted),
+              ),
+            ],
+          ),
+          if (hasAccess && peerConfig != null) ...[
+            const SizedBox(height: 8),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(
+                context.t.folders.sendFiles,
+              ).size(13).weight(.w500),
+              value: peerConfig.canSend,
+              onChanged: (value) => ref
+                  .read(foldersProvider.notifier)
+                  .updatePeer(folder.id, peer.deviceId, canSend: value),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(
+                context.t.folders.receiveFiles,
+              ).size(13).weight(.w500),
+              value: peerConfig.canReceive,
+              onChanged: (value) => ref
+                  .read(foldersProvider.notifier)
+                  .updatePeer(folder.id, peer.deviceId, canReceive: value),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
   void _toggleAccess(
-      WidgetRef ref, FolderConfig folder, PairingPayload peer, bool granted) {
+    WidgetRef ref,
+    FolderConfig folder,
+    PairingPayload peer,
+    bool granted,
+  ) {
     if (granted) {
       ref.read(shareControllerProvider).shareWith(folder, peer);
     } else {

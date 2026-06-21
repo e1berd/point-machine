@@ -11,6 +11,7 @@ class SocketSignalChannel implements SignalChannel {
         .transform(utf8.decoder)
         .transform(const LineSplitter())
         .listen(_onLine, onError: (_) {}, onDone: _closeIncoming);
+    unawaited(_socket.done.catchError((Object _) => _socket));
   }
 
   final Socket _socket;
@@ -23,18 +24,23 @@ class SocketSignalChannel implements SignalChannel {
 
   @override
   Future<void> send(SignalMessage message) {
-    final result = _sendQueue.then((_) async {
-      _socket.write('${message.encode()}\n');
-      await _socket.flush();
+    _sendQueue = _sendQueue.then((_) async {
+      try {
+        _socket.write('${message.encode()}\n');
+        await _socket.flush();
+      } on Object {}
     });
-    _sendQueue = result.catchError((Object _) {});
-    return result;
+    return _sendQueue;
   }
 
   @override
   Future<void> close() async {
-    await _subscription.cancel();
-    await _socket.close();
+    try {
+      _socket.destroy();
+    } on Object {}
+    try {
+      await _subscription.cancel();
+    } on Object {}
     _closeIncoming();
   }
 
@@ -81,5 +87,6 @@ class LanSignalingServer {
 }
 
 Future<SignalChannel> connectLanSignaling(
-        InternetAddress address, int port) async =>
-    SocketSignalChannel(await Socket.connect(address, port));
+  InternetAddress address,
+  int port,
+) async => SocketSignalChannel(await Socket.connect(address, port));

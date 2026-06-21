@@ -4,6 +4,7 @@ import 'package:m3e_core/m3e_core.dart';
 import 'package:motor/motor.dart';
 
 import '../../i18n/strings.g.dart';
+import '../../state/activity_log_provider.dart';
 import '../../state/app_providers.dart';
 import '../theme.dart';
 import '../widgets/expressive.dart';
@@ -170,6 +171,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  const _LogSettingsSection(),
                   ExpressiveSection(
                     title: context.t.settings.signaling,
                     children: [
@@ -224,6 +226,85 @@ double _segmentWidth(double maxWidth, int count) {
   const focusRingSlack = 4.0;
   final usable = maxWidth - (count - 1) * connectedGap - focusRingSlack;
   return usable / count;
+}
+
+class _LogSettingsSection extends ConsumerWidget {
+  const _LogSettingsSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final path = ref.watch(activityLogPathProvider);
+    final controller = ref.read(activityLogControllerProvider);
+    final t = context.t.settings;
+
+    return ExpressiveSection(
+      title: t.logsTitle,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                t.logPath,
+              ).size(12).weight(.w700).color(colors.onSurfaceVariant),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  path.value ?? '...',
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ).size(12).color(colors.onSurface),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton.tonalIcon(
+                    onPressed: () async {
+                      final selected = await controller.choosePath(
+                        dialogTitle: t.changeLogPath,
+                      );
+                      if (selected != null && context.mounted) {
+                        context.showSnackBar(t.logPathChanged);
+                      }
+                    },
+                    icon: const Icon(Icons.edit_rounded),
+                    label: Text(t.changeLogPath),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: () async {
+                      final opened = await controller.openLocation();
+                      if (!opened && context.mounted) {
+                        context.showSnackBar(t.logOpenFailed);
+                      }
+                    },
+                    icon: const Icon(Icons.folder_open_rounded),
+                    label: Text(t.openLogLocation),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: () async {
+                      await controller.clear();
+                      if (context.mounted) context.showSnackBar(t.logsCleared);
+                    },
+                    icon: const Icon(Icons.delete_sweep_rounded),
+                    label: Text(t.clearLogs),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _PalettePicker extends StatelessWidget {

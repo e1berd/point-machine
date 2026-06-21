@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/pairing.dart';
-import '../sync/sync_service.dart';
+import '../platform/sync_controller.dart';
 import '../transport/lan_beacon.dart';
 import 'nearby_devices_provider.dart';
 import 'peers_provider.dart';
@@ -18,7 +18,7 @@ class PairingController {
   final Ref ref;
 
   Future<PairOutcome> pairByPayload(PairingPayload peer) async {
-    final service = await ref.read(syncServiceProvider.future);
+    final service = await ref.read(syncControllerProvider.future);
     final match = _find(peer.deviceId) ?? await _await(service, peer.deviceId);
     if (match == null) {
       await ref.read(pairedPeersProvider.notifier).add(peer);
@@ -29,7 +29,7 @@ class PairingController {
   }
 
   Future<PairOutcome> pairByCode(String code) async {
-    final service = await ref.read(syncServiceProvider.future);
+    final service = await ref.read(syncControllerProvider.future);
     final paired = await service.pairViaCode(code);
     return paired ? PairOutcome.paired : PairOutcome.failed;
   }
@@ -41,7 +41,7 @@ class PairingController {
     return null;
   }
 
-  Future<LanPeer?> _await(SyncService service, String deviceId) async {
+  Future<LanPeer?> _await(SyncController service, String deviceId) async {
     try {
       return await service.nearby
           .firstWhere((peer) => peer.deviceId == deviceId)

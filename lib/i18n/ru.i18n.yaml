@@ -45,7 +45,13 @@ folders:
   scan: Сканировать
   scanned: 'Просканировано файлов: {count}'
   alreadyAdded: Папка уже добавлена
+  openFolder: Открыть папку
+  openFailed: Не удалось открыть папку
   remove: Удалить папку
+  sendFiles: Отправлять файлы
+  receiveFiles: Получать файлы
+  remoteMissing: Нет на удалённом устройстве
+  remoteAvailable: Доступна на удалённом
 
 pair:
   scanHint: Отсканируйте этот код на другом устройстве
@@ -96,6 +102,7 @@ share:
 activity:
   syncedToday: 'Синхронизировано сегодня: {bytes}'
   upToDate: Все устройства актуальны
+  remove: Удалить запись
   empty: Ничего не синхронизируется
   emptyHint: Передачи и конфликты будут отображаться здесь по мере возникновения.
   eventConnecting: Подключение
@@ -134,6 +141,14 @@ settings:
   bluetoothSubtitle: Использовать Bluetooth рядом, если сеть недоступна
   backgroundTitle: Синхронизация в фоне
   backgroundSubtitle: Продолжать синхронизацию при свернутом приложении
+  logsTitle: Логи активности
+  logPath: Файл логов
+  changeLogPath: Изменить путь
+  openLogLocation: Открыть в проводнике
+  clearLogs: Очистить логи
+  logPathChanged: Путь к логам обновлён
+  logsCleared: Логи очищены
+  logOpenFailed: Не удалось открыть расположение логов
 
   signaling: Сигналинг (STUN / TURN)
   defaultStun: Используется STUN-сервер по умолчанию

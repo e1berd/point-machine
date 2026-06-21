@@ -6,6 +6,7 @@ import 'package:motor/motor.dart';
 
 import '../core/pairing.dart';
 import '../i18n/strings.g.dart';
+import '../state/app_providers.dart';
 import '../state/folders_provider.dart';
 import '../state/incoming_share_provider.dart';
 import '../state/peers_provider.dart';
@@ -92,7 +93,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   Future<void> _confirmShare(IncomingShare pending) async {
     final t = context.t;
-    final peers = ref.read(pairedPeersProvider).value ?? const <PairingPayload>[];
+    final peers =
+        ref.read(pairedPeersProvider).value ?? const <PairingPayload>[];
     var name = pending.fromDeviceId;
     for (final peer in peers) {
       if (peer.deviceId == pending.fromDeviceId) {
@@ -121,13 +123,15 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       ),
     );
 
-    final path =
-        accept == true ? await FilePicker.platform.getDirectoryPath() : null;
+    final path = accept == true
+        ? await FilePicker.platform.getDirectoryPath()
+        : null;
     final granted = path != null;
     if (granted) {
       await ref
           .read(foldersProvider.notifier)
           .acceptShare(pending.share, path, pending.fromDeviceId);
+      ref.read(configProvider.notifier).setSyncNow(true);
     }
     ref.read(incomingShareProvider.notifier).resolve(pending, granted);
     _handledShares.remove(pending);
@@ -138,7 +142,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(syncServiceProvider);
+    ref.watch(syncBindingProvider);
 
     ref.listen<List<IncomingShare>>(incomingShareProvider, (_, next) {
       for (final pending in next) {
@@ -350,8 +354,15 @@ class _ExpressiveRailDestinationState extends State<_ExpressiveRailDestination>
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: AnimatedBuilder(
-            animation: Listenable.merge([_widthCtrl, _scaleCtrl, _iconScaleCtrl]),
-            child: _RailLabel(widget.destination.navLabel, selected: widget.selected),
+            animation: Listenable.merge([
+              _widthCtrl,
+              _scaleCtrl,
+              _iconScaleCtrl,
+            ]),
+            child: _RailLabel(
+              widget.destination.navLabel,
+              selected: widget.selected,
+            ),
             builder: (context, child) {
               final widthProgress = _widthCtrl.value;
               final scaleProgress = _scaleCtrl.value;

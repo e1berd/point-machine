@@ -123,7 +123,13 @@ class _Translations$folders$ru implements Translations$folders$en {
 	@override String get scan => 'Сканировать';
 	@override String scanned({required Object count}) => 'Просканировано файлов: ${count}';
 	@override String get alreadyAdded => 'Папка уже добавлена';
+	@override String get openFolder => 'Открыть папку';
+	@override String get openFailed => 'Не удалось открыть папку';
 	@override String get remove => 'Удалить папку';
+	@override String get sendFiles => 'Отправлять файлы';
+	@override String get receiveFiles => 'Получать файлы';
+	@override String get remoteMissing => 'Нет на удалённом устройстве';
+	@override String get remoteAvailable => 'Доступна на удалённом';
 }
 
 // Path: pair
@@ -195,6 +201,7 @@ class _Translations$activity$ru implements Translations$activity$en {
 	// Translations
 	@override String syncedToday({required Object bytes}) => 'Синхронизировано сегодня: ${bytes}';
 	@override String get upToDate => 'Все устройства актуальны';
+	@override String get remove => 'Удалить запись';
 	@override String get empty => 'Ничего не синхронизируется';
 	@override String get emptyHint => 'Передачи и конфликты будут отображаться здесь по мере возникновения.';
 	@override String get eventConnecting => 'Подключение';
@@ -246,6 +253,14 @@ class _Translations$settings$ru implements Translations$settings$en {
 	@override String get bluetoothSubtitle => 'Использовать Bluetooth рядом, если сеть недоступна';
 	@override String get backgroundTitle => 'Синхронизация в фоне';
 	@override String get backgroundSubtitle => 'Продолжать синхронизацию при свернутом приложении';
+	@override String get logsTitle => 'Логи активности';
+	@override String get logPath => 'Файл логов';
+	@override String get changeLogPath => 'Изменить путь';
+	@override String get openLogLocation => 'Открыть в проводнике';
+	@override String get clearLogs => 'Очистить логи';
+	@override String get logPathChanged => 'Путь к логам обновлён';
+	@override String get logsCleared => 'Логи очищены';
+	@override String get logOpenFailed => 'Не удалось открыть расположение логов';
 	@override String get signaling => 'Сигналинг (STUN / TURN)';
 	@override String get defaultStun => 'Используется STUN-сервер по умолчанию';
 	@override String get addServer => 'Добавить сервер';
@@ -309,7 +324,13 @@ extension on TranslationsRu {
 			'folders.scan' => 'Сканировать',
 			'folders.scanned' => ({required Object count}) => 'Просканировано файлов: ${count}',
 			'folders.alreadyAdded' => 'Папка уже добавлена',
+			'folders.openFolder' => 'Открыть папку',
+			'folders.openFailed' => 'Не удалось открыть папку',
 			'folders.remove' => 'Удалить папку',
+			'folders.sendFiles' => 'Отправлять файлы',
+			'folders.receiveFiles' => 'Получать файлы',
+			'folders.remoteMissing' => 'Нет на удалённом устройстве',
+			'folders.remoteAvailable' => 'Доступна на удалённом',
 			'pair.scanHint' => 'Отсканируйте этот код на другом устройстве',
 			'pair.scanButton' => 'Сканировать устройство',
 			'pair.scanInstruction' => 'Направьте камеру на QR-код другого устройства',
@@ -354,6 +375,7 @@ extension on TranslationsRu {
 			'share.declined' => 'Запрос отклонён',
 			'activity.syncedToday' => ({required Object bytes}) => 'Синхронизировано сегодня: ${bytes}',
 			'activity.upToDate' => 'Все устройства актуальны',
+			'activity.remove' => 'Удалить запись',
 			'activity.empty' => 'Ничего не синхронизируется',
 			'activity.emptyHint' => 'Передачи и конфликты будут отображаться здесь по мере возникновения.',
 			'activity.eventConnecting' => 'Подключение',
@@ -387,6 +409,14 @@ extension on TranslationsRu {
 			'settings.bluetoothSubtitle' => 'Использовать Bluetooth рядом, если сеть недоступна',
 			'settings.backgroundTitle' => 'Синхронизация в фоне',
 			'settings.backgroundSubtitle' => 'Продолжать синхронизацию при свернутом приложении',
+			'settings.logsTitle' => 'Логи активности',
+			'settings.logPath' => 'Файл логов',
+			'settings.changeLogPath' => 'Изменить путь',
+			'settings.openLogLocation' => 'Открыть в проводнике',
+			'settings.clearLogs' => 'Очистить логи',
+			'settings.logPathChanged' => 'Путь к логам обновлён',
+			'settings.logsCleared' => 'Логи очищены',
+			'settings.logOpenFailed' => 'Не удалось открыть расположение логов',
 			'settings.signaling' => 'Сигналинг (STUN / TURN)',
 			'settings.defaultStun' => 'Используется STUN-сервер по умолчанию',
 			'settings.addServer' => 'Добавить сервер',
