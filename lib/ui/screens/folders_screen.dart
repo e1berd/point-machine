@@ -112,20 +112,21 @@ class FoldersScreen extends ConsumerWidget {
             return true;
           },
           style: M3EDismissibleCardStyle(
-            outerRadius: 32,
-            innerRadius: 14,
-            gap: 12,
+            outerRadius: expressiveMobileListOuterRadius,
+            innerRadius: expressiveMobileListInnerRadius,
+            gap: expressiveMobileListGap,
             color: colors.surfaceContainerHigh,
-            padding: const EdgeInsets.all(20),
-            backgroundBorderRadius: 32,
-            secondaryBackgroundBorderRadius: 32,
+            padding: expressiveMobileListPadding,
+            margin: expressiveMobileListMargin,
+            backgroundBorderRadius: expressiveMobileListOuterRadius,
+            secondaryBackgroundBorderRadius: expressiveMobileListOuterRadius,
             background: _deleteBackground(context, Alignment.centerLeft),
             secondaryBackground: _deleteBackground(
               context,
               Alignment.centerRight,
             ),
           ),
-          listPadding: expressiveScreenPadding(context).copyWith(top: 0),
+          listPadding: expressiveMobileListPaddingFor(context),
         );
       },
     );

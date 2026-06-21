@@ -12,6 +12,11 @@ const expressiveExitCurve = Easing.emphasizedAccelerate;
 const expressiveCompactBreakpoint = 720.0;
 const expressiveMediumBreakpoint = 900.0;
 const expressiveExpandedBreakpoint = 1200.0;
+const expressiveMobileListOuterRadius = 24.0;
+const expressiveMobileListInnerRadius = 4.0;
+const expressiveMobileListGap = 3.0;
+const expressiveMobileListPadding = EdgeInsets.all(12);
+const expressiveMobileListMargin = EdgeInsets.symmetric(horizontal: 12);
 
 const _springReveal = M3EMotion.expressiveSpatialDefault;
 const _springFast = M3EMotion.expressiveEffectsFast;
@@ -33,6 +38,10 @@ EdgeInsets expressiveScreenPadding(BuildContext context) {
     horizontal,
     expressiveHasBottomNav(context) ? 96 : 28,
   );
+}
+
+EdgeInsets expressiveMobileListPaddingFor(BuildContext context) {
+  return EdgeInsets.only(bottom: expressiveScreenPadding(context).bottom);
 }
 
 int expressiveGridColumns(

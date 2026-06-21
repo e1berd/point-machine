@@ -50,17 +50,19 @@ class DevicesScreen extends ConsumerWidget {
               children: [
                 ExpressiveResponsiveCenter(
                   maxWidth: 1180,
-                  padding: expressiveScreenPadding(context).copyWith(bottom: 0),
+                  padding: EdgeInsets.only(
+                    top: expressiveScreenPadding(context).top,
+                  ),
                   child: ExpressiveReveal(
                     child: M3ECardList(
                       itemCount: 1,
                       itemBuilder: (ctx, i) => _thisDevice(context, name),
-                      outerRadius: 32,
-                      innerRadius: 12,
-                      gap: 0,
+                      outerRadius: expressiveMobileListOuterRadius,
+                      innerRadius: expressiveMobileListInnerRadius,
+                      gap: expressiveMobileListGap,
                       color: colors.surfaceContainerHigh,
-                      padding: const EdgeInsets.all(20),
-                      margin: EdgeInsets.zero,
+                      padding: expressiveMobileListPadding,
+                      margin: expressiveMobileListMargin,
                     ),
                   ),
                 ),
@@ -127,13 +129,14 @@ class DevicesScreen extends ConsumerWidget {
               return true;
             },
             style: M3EDismissibleCardStyle(
-              outerRadius: 32,
-              innerRadius: 12,
-              gap: 8,
+              outerRadius: expressiveMobileListOuterRadius,
+              innerRadius: expressiveMobileListInnerRadius,
+              gap: expressiveMobileListGap,
               color: colors.surfaceContainerHigh,
-              padding: const EdgeInsets.all(16),
-              backgroundBorderRadius: 32,
-              secondaryBackgroundBorderRadius: 32,
+              padding: expressiveMobileListPadding,
+              margin: expressiveMobileListMargin,
+              backgroundBorderRadius: expressiveMobileListOuterRadius,
+              secondaryBackgroundBorderRadius: expressiveMobileListOuterRadius,
               background: deleteSwipeBackground(
                 context,
                 Alignment.centerLeft,
@@ -145,7 +148,7 @@ class DevicesScreen extends ConsumerWidget {
                 context.t.devices.remove,
               ),
             ),
-            listPadding: expressiveScreenPadding(context).copyWith(top: 0),
+            listPadding: expressiveMobileListPaddingFor(context),
           );
         },
       ),

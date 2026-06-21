@@ -139,13 +139,14 @@ class _ActivityBody extends ConsumerWidget {
           return true;
         },
         style: M3EDismissibleCardStyle(
-          outerRadius: 32,
-          innerRadius: 8,
-          gap: 0,
+          outerRadius: expressiveMobileListOuterRadius,
+          innerRadius: expressiveMobileListInnerRadius,
+          gap: expressiveMobileListGap,
           color: context.colors.surfaceContainerHigh,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          backgroundBorderRadius: 32,
-          secondaryBackgroundBorderRadius: 32,
+          padding: expressiveMobileListPadding,
+          margin: expressiveMobileListMargin,
+          backgroundBorderRadius: expressiveMobileListOuterRadius,
+          secondaryBackgroundBorderRadius: expressiveMobileListOuterRadius,
           background: deleteSwipeBackground(
             context,
             Alignment.centerLeft,
@@ -157,7 +158,7 @@ class _ActivityBody extends ConsumerWidget {
             context.t.activity.remove,
           ),
         ),
-        listPadding: expressiveScreenPadding(context).copyWith(top: 0),
+        listPadding: expressiveMobileListPaddingFor(context),
       ),
     );
   }
