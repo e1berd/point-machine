@@ -88,6 +88,7 @@ class _Translations$devices$ru implements Translations$devices$en {
 	@override String get title => 'Связанные устройства';
 	@override String get thisDevice => 'Это устройство';
 	@override String get online => 'В сети';
+	@override String get offline => 'Не в сети';
 	@override String get empty => 'Нет связанных устройств';
 	@override String get emptyHint => 'Откройте «Связь», чтобы подключить другое устройство.';
 	@override String get errorLoad => 'Не удалось загрузить данные устройства';
@@ -305,6 +306,7 @@ extension on TranslationsRu {
 			'devices.title' => 'Связанные устройства',
 			'devices.thisDevice' => 'Это устройство',
 			'devices.online' => 'В сети',
+			'devices.offline' => 'Не в сети',
 			'devices.empty' => 'Нет связанных устройств',
 			'devices.emptyHint' => 'Откройте «Связь», чтобы подключить другое устройство.',
 			'devices.errorLoad' => 'Не удалось загрузить данные устройства',

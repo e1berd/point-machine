@@ -39,6 +39,7 @@ class _BackgroundBridge {
 
   Future<void> run() async {
     _wireForeground();
+    await _host.start();
     service.on(msgSetActive).listen(
       (d) => _host.setSyncActive(d?['active'] as bool? ?? false),
     );
@@ -48,7 +49,6 @@ class _BackgroundBridge {
     service.on(msgRescan).listen((d) => _host.rescan(d?['folderId'] as String));
     service.on(msgResolve).listen(_onResolve);
     service.on(msgRpc).listen(_onRpc);
-    await _host.start();
   }
 
   void _wireForeground() {

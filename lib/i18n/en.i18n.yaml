@@ -18,6 +18,7 @@ devices:
   title: Paired devices
   thisDevice: This device
   online: Online
+  offline: Offline
   empty: No paired devices
   emptyHint: Open Pair to connect another device.
   errorLoad: Could not load identity

@@ -41,11 +41,11 @@ class SyncHost {
 
   late final Directory _dir;
   late final Database _database;
-  late final SyncService _service;
+  SyncService? _service;
   StreamSubscription<LanPeer>? _nearbySub;
   var _peers = <PairingPayload>[];
 
-  SyncService get service => _service;
+  SyncService get service => _service!;
 
   Future<void> start() async {
     _dir = await appDataDir();
@@ -55,7 +55,8 @@ class SyncHost {
 
   Future<void> restart() async {
     await _nearbySub?.cancel();
-    await _service.stop();
+    final svc = _service;
+    if (svc != null) await svc.stop();
     await _startService();
   }
 
@@ -66,7 +67,7 @@ class SyncHost {
     _peers = await loadPeers(_dir);
     final folders = await loadFolders(_dir);
 
-    _service = SyncService(
+    final svc = SyncService(
       identity: identity,
       deviceName: deviceName,
       config: config,
@@ -78,9 +79,10 @@ class SyncHost {
       onEvent: onEvent,
       onFolderChanged: onFolderChanged,
     );
-    await _service.start();
-    _service.setSyncActive(syncWindowActive(config, DateTime.now()));
-    if (onNearby != null) _nearbySub = _service.nearby.listen(onNearby);
+    _service = svc;
+    await svc.start();
+    svc.setSyncActive(syncWindowActive(config, DateTime.now()));
+    if (onNearby != null) _nearbySub = svc.nearby.listen(onNearby);
   }
 
   Future<List<FolderRuntime>> _runtimes(List<FolderConfig> list) async => [
@@ -99,17 +101,19 @@ class SyncHost {
       peer,
     ];
     unawaited(savePeers(_dir, _peers));
-    _service.updatePeers(_peers);
+    _service?.updatePeers(_peers);
     onPaired?.call(peer);
   }
 
   Future<void> reloadPeers() async {
     _peers = await loadPeers(_dir);
-    _service.updatePeers(_peers);
+    _service?.updatePeers(_peers);
   }
 
   Future<void> reloadFolders() async {
-    _service.updateFolders(await _runtimes(await loadFolders(_dir)));
+    final svc = _service;
+    if (svc == null) return;
+    svc.updateFolders(await _runtimes(await loadFolders(_dir)));
   }
 
   Future<int> folderSize(String folderId) async {
@@ -121,14 +125,15 @@ class SyncHost {
 
   Future<void> rescan(String folderId) async {
     await reloadFolders();
-    await _service.rescanFolder(folderId);
+    _service?.rescanFolder(folderId);
   }
 
-  void setSyncActive(bool active) => _service.setSyncActive(active);
+  void setSyncActive(bool active) => _service?.setSyncActive(active);
 
   Future<void> stop() async {
     await _nearbySub?.cancel();
-    await _service.stop();
+    final svc = _service;
+    if (svc != null) await svc.stop();
     await _database.close();
   }
 }

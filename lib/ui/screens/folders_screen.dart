@@ -180,7 +180,6 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
   @override
   Widget build(BuildContext context) {
     final folder = widget.folder;
-    final onRemove = widget.onRemove;
     final size = ref.watch(folderSizeProvider(folder.id));
     final colors = context.colors;
 
@@ -236,11 +235,6 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
               tooltip: context.t.folders.manageAccess,
               onPressed: () => _showAccess(context, ref, folder),
               icon: const Icon(Icons.group_rounded),
-            ),
-            IconButton(
-              tooltip: context.t.folders.remove,
-              onPressed: onRemove,
-              icon: const Icon(Icons.delete_outline_rounded),
             ),
           ],
         ),
@@ -434,55 +428,57 @@ class _PeerAccessTile extends ConsumerWidget {
     final hasAccess = folder.peerIds.contains(peer.deviceId);
     final peerConfig = folder.peer(peer.deviceId);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
         color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: .stretch,
-        children: [
-          Row(
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: .stretch,
             children: [
-              _statusDot(context, hasAccess),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(peer.name).size(15).weight(.w600),
+              Row(
+                children: [
+                  _statusDot(context, hasAccess),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(peer.name).size(15).weight(.w600)),
+                  Switch(
+                    value: hasAccess,
+                    onChanged: (granted) =>
+                        _toggleAccess(ref, folder, peer, granted),
+                  ),
+                ],
               ),
-              Switch(
-                value: hasAccess,
-                onChanged: (granted) => _toggleAccess(ref, folder, peer, granted),
-              ),
+              if (hasAccess && peerConfig != null) ...[
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    context.t.folders.sendFiles,
+                  ).size(13).weight(.w500),
+                  value: peerConfig.canSend,
+                  onChanged: (value) => ref
+                      .read(foldersProvider.notifier)
+                      .updatePeer(folder.id, peer.deviceId, canSend: value),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    context.t.folders.receiveFiles,
+                  ).size(13).weight(.w500),
+                  value: peerConfig.canReceive,
+                  onChanged: (value) => ref
+                      .read(foldersProvider.notifier)
+                      .updatePeer(folder.id, peer.deviceId, canReceive: value),
+                ),
+              ],
             ],
           ),
-          if (hasAccess && peerConfig != null) ...[
-            const SizedBox(height: 8),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(
-                context.t.folders.sendFiles,
-              ).size(13).weight(.w500),
-              value: peerConfig.canSend,
-              onChanged: (value) => ref
-                  .read(foldersProvider.notifier)
-                  .updatePeer(folder.id, peer.deviceId, canSend: value),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(
-                context.t.folders.receiveFiles,
-              ).size(13).weight(.w500),
-              value: peerConfig.canReceive,
-              onChanged: (value) => ref
-                  .read(foldersProvider.notifier)
-                  .updatePeer(folder.id, peer.deviceId, canReceive: value),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

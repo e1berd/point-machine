@@ -10,20 +10,22 @@ class DesktopTray {
   final String iconPath;
   final Future<void> Function() onQuit;
 
-  late final TrayIcon _trayIcon;
+  TrayIcon? _trayIcon;
   late final WindowManager _windowManager;
-  late final Window _window;
+  Window? _window;
 
   Future<void> setup() async {
     _windowManager = WindowManager.instance;
-    _window = _windowManager.getCurrent()!;
+    _window = _windowManager.getCurrent();
+    if (_window == null) return;
 
     final image = await _resolveImage();
 
     _trayIcon = TrayIcon();
-    if (image != null) _trayIcon.icon = image;
-    _trayIcon.tooltip = 'point-machine';
-    _trayIcon.contextMenuTrigger = ContextMenuTrigger.clicked;
+    final tray = _trayIcon!;
+    if (image != null) tray.icon = image;
+    tray.tooltip = 'point-machine';
+    tray.contextMenuTrigger = ContextMenuTrigger.clicked;
 
     final menu = Menu();
     final showItem = MenuItem('Open point-machine');
@@ -34,20 +36,20 @@ class DesktopTray {
     quitItem.on<MenuItemClickedEvent>((_) => _quit());
     menu.addItem(quitItem);
 
-    _trayIcon.contextMenu = menu;
-    _trayIcon.on<TrayIconRightClickedEvent>((_) => _trayIcon.openContextMenu());
-    _trayIcon.on<TrayIconDoubleClickedEvent>((_) => _open());
-    _trayIcon.isVisible = true;
+    tray.contextMenu = menu;
+    tray.on<TrayIconRightClickedEvent>((_) => tray.openContextMenu());
+    tray.on<TrayIconDoubleClickedEvent>((_) => _open());
+    tray.isVisible = true;
 
     _enableAutostart();
   }
 
   void _open() {
-    _window.show();
-    _window.focus();
+    _window?.show();
+    _window?.focus();
   }
 
-  void hideToTray() => _window.hide();
+  void hideToTray() => _window?.hide();
 
   void _enableAutostart() {
     try {
@@ -81,11 +83,11 @@ class DesktopTray {
 
   Future<void> _quit() async {
     await onQuit();
-    _window.dispose();
+    _window?.dispose();
     exit(0);
   }
 
   Future<void> dispose() async {
-    _trayIcon.dispose();
+    _trayIcon?.dispose();
   }
 }

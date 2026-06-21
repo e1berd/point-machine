@@ -93,7 +93,7 @@ class SyncService {
     identity,
     deviceName,
   );
-  late final LanSignalingServer _signaling;
+  late LanSignalingServer _signaling;
   LanBeacon? _beacon;
 
   static const _signalingPort = 49322;

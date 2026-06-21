@@ -121,6 +121,9 @@ class Translations$devices$en {
 	/// en: 'Online'
 	String get online => 'Online';
 
+	/// en: 'Offline'
+	String get offline => 'Offline';
+
 	/// en: 'No paired devices'
 	String get empty => 'No paired devices';
 
@@ -583,6 +586,7 @@ extension on Translations {
 			'devices.title' => 'Paired devices',
 			'devices.thisDevice' => 'This device',
 			'devices.online' => 'Online',
+			'devices.offline' => 'Offline',
 			'devices.empty' => 'No paired devices',
 			'devices.emptyHint' => 'Open Pair to connect another device.',
 			'devices.errorLoad' => 'Could not load identity',

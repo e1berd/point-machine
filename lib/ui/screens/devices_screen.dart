@@ -175,12 +175,6 @@ class DevicesScreen extends ConsumerWidget {
                   : () => _showRenameDialog(context, currentName),
               icon: const Icon(Icons.edit_rounded),
             ),
-        ExpressiveStatusPill(
-          icon: Icons.bolt_rounded,
-          label: context.t.devices.online,
-          color: colors.tertiaryContainer,
-          foregroundColor: colors.onTertiaryContainer,
-        ),
           ],
         ),
       ],
@@ -233,12 +227,6 @@ class DevicesScreen extends ConsumerWidget {
                   ).size(12).color(colors.onSurfaceVariant).overflow(.ellipsis),
                 ],
               ),
-            ),
-            IconButton(
-              tooltip: context.t.devices.remove,
-              onPressed: () =>
-                  ref.read(pairedPeersProvider.notifier).remove(peer.deviceId),
-              icon: const Icon(Icons.delete_outline_rounded),
             ),
           ],
         ),
