@@ -88,10 +88,54 @@ deb:
     fakeroot dpkg-deb --build "$root" "$deb"
     echo "Built $deb"
 
-    sudo dpkg -i "$deb" || sudo apt-get install -f -y
-    sudo update-desktop-database -q 2>/dev/null || true
-    sudo gtk-update-icon-cache -q /usr/share/icons/hicolor 2>/dev/null || true
-    echo "Installed $pkg $version"
+dmg:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    flutter build macos --release
+
+    app="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)"
+    version="$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')"
+    dmg="build/dmg/point-machine_${version}.dmg"
+
+    rm -rf build/dmg
+    mkdir -p build/dmg
+    hdiutil create -volname "Point Machine" -srcfolder "$app" \
+        -ov -format UDZO "$dmg"
+    echo "Built $dmg"
+
+buy:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    version="$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')"
+    case "$(uname -s)" in
+      Linux)
+        just deb
+        deb="build/deb/point-machine_${version}_amd64.deb"
+        sudo dpkg -i "$deb" || sudo apt-get install -f -y
+        sudo update-desktop-database -q 2>/dev/null || true
+        sudo gtk-update-icon-cache -q /usr/share/icons/hicolor 2>/dev/null || true
+        echo "Installed point-machine $version"
+        ;;
+      Darwin)
+        just dmg
+        app="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)"
+        rm -rf "/Applications/$(basename "$app")"
+        cp -R "$app" /Applications/
+        echo "Installed $(basename "$app") to /Applications"
+        ;;
+      MINGW*|MSYS*|CYGWIN*|Windows*)
+        flutter build windows --release
+        dest="$LOCALAPPDATA/Programs/PointMachine"
+        rm -rf "$dest"
+        mkdir -p "$dest"
+        cp -R build/windows/x64/runner/Release/. "$dest/"
+        echo "Installed Point Machine to $dest"
+        ;;
+      *)
+        echo "Unsupported platform: $(uname -s)" >&2
+        exit 1
+        ;;
+    esac
 
 clean:
     flutter clean
