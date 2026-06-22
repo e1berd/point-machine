@@ -22,7 +22,13 @@ test:
     dart test test/unit
 
 run platform="linux":
-    flutter run -d {{ platform }}
+    flutter run -d {{ platform }} --enable-impeller
+
+profile platform="linux":
+    flutter run --profile -d {{ platform }} --enable-impeller
+
+profile-skia platform="linux":
+    flutter run --profile -d {{ platform }}
 
 build target="linux":
     #!/usr/bin/env bash

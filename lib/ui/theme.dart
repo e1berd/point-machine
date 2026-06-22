@@ -110,6 +110,7 @@ ThemeData _buildPointTheme(Brightness brightness, String schemeId) {
     colorScheme: scheme,
     brightness: scheme.brightness,
     scaffoldBackgroundColor: scheme.surfaceContainerLowest,
+    fontFamily: 'Roboto',
     useMaterial3: true,
   );
   final splashFactory = switch (defaultTargetPlatform) {

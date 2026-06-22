@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:m3e_core/m3e_core.dart';
 import 'package:motor/motor.dart';
@@ -144,25 +143,80 @@ class ExpressiveSwitcher extends StatelessWidget {
   }
 }
 
-class ExpressivePageSwitcher extends StatelessWidget {
-  const ExpressivePageSwitcher({super.key, required this.child});
+class ExpressiveLazyStack extends StatefulWidget {
+  const ExpressiveLazyStack({
+    super.key,
+    required this.index,
+    required this.length,
+    required this.itemBuilder,
+  });
 
-  final Widget child;
+  final int index;
+  final int length;
+  final Widget Function(int index) itemBuilder;
+
+  @override
+  State<ExpressiveLazyStack> createState() => _ExpressiveLazyStackState();
+}
+
+class _ExpressiveLazyStackState extends State<ExpressiveLazyStack>
+    with SingleTickerProviderStateMixin {
+  final _visited = <int>{};
+  final _cache = <int, Widget>{};
+  late final AnimationController _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _visited.add(widget.index);
+    _fade = AnimationController(
+      vsync: this,
+      duration: expressiveFastDuration,
+      value: 1,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => _warmNext());
+  }
+
+  void _warmNext() {
+    if (!mounted || _visited.length >= widget.length) return;
+    for (var i = 0; i < widget.length; i++) {
+      if (_visited.add(i)) break;
+    }
+    setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) => _warmNext());
+  }
+
+  @override
+  void didUpdateWidget(ExpressiveLazyStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.index != widget.index) {
+      _visited.add(widget.index);
+      _fade.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _fade.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return PageTransitionSwitcher(
-      duration: expressiveDuration,
-      transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
-        return FadeThroughTransition(
-          animation: primaryAnimation,
-          secondaryAnimation: secondaryAnimation,
-          fillColor: colors.surfaceContainerLowest,
-          child: child,
-        );
-      },
-      child: child,
+    return FadeTransition(
+      opacity: _fade,
+      child: IndexedStack(
+        index: widget.index,
+        children: [
+          for (var i = 0; i < widget.length; i++)
+            _visited.contains(i)
+                ? _cache.putIfAbsent(
+                    i,
+                    () => RepaintBoundary(child: widget.itemBuilder(i)),
+                  )
+                : const SizedBox.shrink(),
+        ],
+      ),
     );
   }
 }
@@ -217,18 +271,15 @@ class _ExpressiveRevealState extends State<ExpressiveReveal>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      child: widget.child,
+      child: RepaintBoundary(child: widget.child),
       builder: (context, child) {
-        final value = _controller.value;
-        return Opacity(
-          opacity: value.clamp(0.0, 1.0),
-          child: Transform.translate(
-            offset: Offset(0, (1 - value) * widget.offset),
-            child: Transform.scale(
-              scale: .98 + (.02 * value),
-              alignment: Alignment.topCenter,
-              child: child,
-            ),
+        final value = _controller.value.clamp(0.0, 1.0);
+        return Transform.translate(
+          offset: Offset(0, (1 - value) * widget.offset),
+          child: Transform.scale(
+            scale: .98 + (.02 * value),
+            alignment: Alignment.topCenter,
+            child: child,
           ),
         );
       },
@@ -287,24 +338,19 @@ class ExpressiveSection extends StatelessWidget {
               ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: AnimatedSize(
-              duration: expressiveDuration,
-              curve: expressiveCurve,
-              alignment: Alignment.topCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var i = 0; i < children.length; i++) ...[
-                    if (i > 0)
-                      Divider(
-                        height: 1,
-                        indent: 72,
-                        color: colors.outlineVariant.withValues(alpha: .42),
-                      ),
-                    children[i],
-                  ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 1,
+                      indent: 72,
+                      color: colors.outlineVariant.withValues(alpha: .42),
+                    ),
+                  children[i],
                 ],
-              ),
+              ],
             ),
           ),
         ],

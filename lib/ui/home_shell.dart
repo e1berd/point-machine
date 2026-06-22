@@ -199,9 +199,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final destinations = _destinations(context.t);
     final active = destinations[_index];
     final colors = context.colors;
-    final activeScreen = KeyedSubtree(
-      key: ValueKey(active.titleLabel),
-      child: active.screen,
+    final pages = ExpressiveLazyStack(
+      index: _index,
+      length: destinations.length,
+      itemBuilder: (i) => destinations[i].screen,
     );
 
     if (context.width >= 720) {
@@ -229,7 +230,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                       ),
                     ),
                   ),
-                  Expanded(child: ExpressivePageSwitcher(child: activeScreen)),
+                  Expanded(child: pages),
                 ],
               ),
             ),
@@ -251,7 +252,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             ],
           ),
         )
-        .body(ExpressivePageSwitcher(child: activeScreen))
+        .body(pages)
         .bottomNavigation(
           NavigationBar(
             selectedIndex: _index,
@@ -393,64 +394,72 @@ class _ExpressiveRailDestinationState extends State<_ExpressiveRailDestination>
         onTap: widget.onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: AnimatedBuilder(
-            animation: Listenable.merge([
-              _widthCtrl,
-              _scaleCtrl,
-              _iconScaleCtrl,
-            ]),
-            child: _RailLabel(
-              widget.destination.navLabel,
-              selected: widget.selected,
-            ),
-            builder: (context, child) {
-              final widthProgress = _widthCtrl.value;
-              final scaleProgress = _scaleCtrl.value;
-              final iconScaleProgress = _iconScaleCtrl.value;
+          child: RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: Listenable.merge([
+                _widthCtrl,
+                _scaleCtrl,
+                _iconScaleCtrl,
+              ]),
+              child: _RailLabel(
+                widget.destination.navLabel,
+                selected: widget.selected,
+              ),
+              builder: (context, child) {
+                final widthProgress = _widthCtrl.value;
+                final scaleProgress = _scaleCtrl.value;
+                final iconScaleProgress = _iconScaleCtrl.value;
 
-              final width = _lerpDouble(48, _railIndicatorWidth, widthProgress);
-              final indicatorRadius = _lerpDouble(18, 100, widthProgress);
-              final iconScale = _lerpDouble(1, 1.08, iconScaleProgress);
-              final iconSize = _lerpDouble(23, 26, iconScaleProgress);
-              final pressScale = _pressed ? .94 : 1.0;
-              final bgAlpha = scaleProgress;
+                final width = _lerpDouble(
+                  48,
+                  _railIndicatorWidth,
+                  widthProgress,
+                );
+                final indicatorRadius = _lerpDouble(18, 100, widthProgress);
+                final iconScale = _lerpDouble(1, 1.08, iconScaleProgress);
+                final iconSize = _lerpDouble(23, 26, iconScaleProgress);
+                final pressScale = _pressed ? .94 : 1.0;
+                final bgAlpha = scaleProgress;
 
-              return SizedBox(
-                height: _railDestinationHeight,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Transform.scale(
-                      scale: pressScale,
-                      child: Container(
-                        width: width,
-                        height: _railIndicatorHeight,
-                        decoration: BoxDecoration(
-                          color: Color.lerp(
-                            Colors.transparent,
-                            colors.secondaryContainer,
-                            bgAlpha,
+                return SizedBox(
+                  height: _railDestinationHeight,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Transform.scale(
+                        scale: pressScale,
+                        child: Container(
+                          width: width,
+                          height: _railIndicatorHeight,
+                          decoration: BoxDecoration(
+                            color: Color.lerp(
+                              Colors.transparent,
+                              colors.secondaryContainer,
+                              bgAlpha,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              indicatorRadius,
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(indicatorRadius),
-                        ),
-                        child: Transform.scale(
-                          scale: iconScale,
-                          child: Icon(
-                            widget.selected
-                                ? widget.destination.selectedIcon
-                                : widget.destination.icon,
-                            color: foreground,
-                            size: iconSize,
+                          child: Transform.scale(
+                            scale: iconScale,
+                            child: Icon(
+                              widget.selected
+                                  ? widget.destination.selectedIcon
+                                  : widget.destination.icon,
+                              color: foreground,
+                              size: iconSize,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    child!,
-                  ],
-                ),
-              );
-            },
+                      const SizedBox(height: 5),
+                      child!,
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

@@ -44,37 +44,46 @@ class FolderScanner {
     }
 
     final hashes = await _hashFile(path, size);
-    final version =
-        (existing?.version ?? VersionVector.empty).increment(deviceId);
-    await index.put(IndexEntry(
-      FileMeta(
-        path: path,
-        size: size,
-        modified: modified,
-        blockHashes: hashes,
+    final version = (existing?.version ?? VersionVector.empty).increment(
+      deviceId,
+    );
+    await index.put(
+      IndexEntry(
+        FileMeta(
+          path: path,
+          size: size,
+          modified: modified,
+          blockHashes: hashes,
+        ),
+        version,
       ),
-      version,
-    ));
+    );
   }
 
   Future<List<String>> _hashFile(String path, int size) async {
+    const chunk = blockSize * 64;
     final hashes = <String>[];
-    for (var offset = 0; offset < size; offset += blockSize) {
-      hashes.add(await hashBytes(await store.readRange(path, offset, blockSize)));
+    for (var offset = 0; offset < size; offset += chunk) {
+      final length = offset + chunk < size ? chunk : size - offset;
+      hashes.addAll(
+        await hashBlocks(await store.readRange(path, offset, length)),
+      );
     }
     return hashes;
   }
 
   Future<void> _markDeleted(IndexEntry entry) async {
-    await index.put(IndexEntry(
-      FileMeta(
-        path: entry.meta.path,
-        size: 0,
-        modified: DateTime.now().toUtc(),
-        blockHashes: const [],
-        deleted: true,
+    await index.put(
+      IndexEntry(
+        FileMeta(
+          path: entry.meta.path,
+          size: 0,
+          modified: DateTime.now().toUtc(),
+          blockHashes: const [],
+          deleted: true,
+        ),
+        entry.version.increment(deviceId),
       ),
-      entry.version.increment(deviceId),
-    ));
+    );
   }
 }
