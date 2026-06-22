@@ -41,11 +41,14 @@ Runtime:
 
 Development:
 
-- Flutter SDK compatible with Dart SDK `^3.12.2`.
-- Android Studio or Android command-line tools for Android builds.
-- Xcode for iOS and macOS builds.
-- CMake, Ninja, GTK development packages, and a C++ toolchain for Linux builds.
-- Visual Studio with Desktop development with C++ for Windows builds.
+- `just` 1.45.0 or newer for project task shortcuts.
+- Flutter SDK 3.44.0 or newer.
+- Dart SDK 3.12.2 or newer, below 4.0.0.
+- Java 17 for Android builds.
+- Android Studio or Android command-line tools with Android SDK 36 for Android builds.
+- Xcode with iOS 13.0 and macOS 10.15 deployment target support for iOS and macOS builds.
+- CMake 3.14 or newer, Ninja, GTK 3 development packages, pkg-config, and a C++ toolchain for Linux builds.
+- Visual Studio with Desktop development with C++ and CMake 3.14 or newer for Windows builds.
 
 ## Build
 

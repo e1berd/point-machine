@@ -42,11 +42,14 @@ Windows. Web не поддерживается: приложению нужны 
 
 Для разработки:
 
-- Flutter SDK, совместимый с Dart SDK `^3.12.2`.
-- Android Studio или Android command-line tools для сборок Android.
-- Xcode для сборок iOS и macOS.
-- CMake, Ninja, GTK development packages и C++ toolchain для сборок Linux.
-- Visual Studio с Desktop development with C++ для сборок Windows.
+- `just` 1.45.0 или новее для проектных команд.
+- Flutter SDK 3.44.0 или новее.
+- Dart SDK 3.12.2 или новее, ниже 4.0.0.
+- Java 17 для сборок Android.
+- Android Studio или Android command-line tools с Android SDK 36 для сборок Android.
+- Xcode с поддержкой deployment target iOS 13.0 и macOS 10.15 для сборок iOS и macOS.
+- CMake 3.14 или новее, Ninja, GTK 3 development packages, pkg-config и C++ toolchain для сборок Linux.
+- Visual Studio с Desktop development with C++ и CMake 3.14 или новее для сборок Windows.
 
 ## Сборка
 
