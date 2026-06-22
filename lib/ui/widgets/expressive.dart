@@ -350,6 +350,72 @@ class ExpressiveIconContainer extends StatelessWidget {
   }
 }
 
+class OrbitLogo extends StatelessWidget {
+  const OrbitLogo({
+    super.key,
+    this.size = 40,
+    this.containerColor,
+    this.onContainerColor,
+  });
+
+  final double size;
+  final Color? containerColor;
+  final Color? onContainerColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return CustomPaint(
+      size: Size.square(size),
+      painter: _OrbitLogoPainter(
+        container: containerColor ?? colors.primaryContainer,
+        onContainer: onContainerColor ?? colors.onPrimaryContainer,
+      ),
+    );
+  }
+}
+
+class _OrbitLogoPainter extends CustomPainter {
+  _OrbitLogoPainter({required this.container, required this.onContainer});
+
+  final Color container;
+  final Color onContainer;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.width / 1024;
+    final rrect = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      Radius.circular(230 * s),
+    );
+    canvas.drawRRect(rrect, Paint()..color = container);
+
+    canvas.drawCircle(
+      Offset(512 * s, 512 * s),
+      195 * s,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 56 * s
+        ..color = onContainer,
+    );
+
+    final dotFill = Paint()..color = onContainer;
+    final dotEdge = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 24 * s
+      ..color = container;
+    for (final dot in const [Offset(650, 374), Offset(374, 650)]) {
+      final center = Offset(dot.dx * s, dot.dy * s);
+      canvas.drawCircle(center, 78 * s, dotFill);
+      canvas.drawCircle(center, 78 * s, dotEdge);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_OrbitLogoPainter old) =>
+      old.container != container || old.onContainer != onContainer;
+}
+
 class ExpressiveStatusPill extends StatelessWidget {
   const ExpressiveStatusPill({
     super.key,

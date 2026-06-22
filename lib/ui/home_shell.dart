@@ -289,15 +289,9 @@ class _ExpressiveSideRail extends StatelessWidget {
         width: _railWidth,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 10),
-              child: ExpressiveIconContainer(
-                icon: Icons.alt_route_rounded,
-                size: 52,
-                radius: 20,
-                color: colors.primaryContainer,
-                foregroundColor: colors.onPrimaryContainer,
-              ),
+            const Padding(
+              padding: EdgeInsets.only(top: 12, bottom: 10),
+              child: OrbitLogo(size: 52),
             ),
             Expanded(
               child: ListView(
