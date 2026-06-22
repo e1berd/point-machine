@@ -39,7 +39,9 @@ corner radii ~28px, stadium buttons), bold and large emphasized type, spring mot
 - **Dark / light / system** theme support, switchable by the user.
 - **Use dot shorthands** wherever the language allows (`.system`, `.filled`, `.center`)
   instead of the fully-qualified form.
-- Backend / native code must **not** be C/C++. All our code is pure Dart.
+- **No C/C++ — ever.** This is the one hard rule for native code. Any other language or
+  technology (Dart, Rust, Zig, etc.) is acceptable when it measurably improves performance;
+  prefer Dart by default and reach for an FFI module only behind a profiled hotspot.
 
 ## Architecture (no server, ever)
 WebRTC needs a rendezvous; we replace the central signaling server with three serverless paths:
