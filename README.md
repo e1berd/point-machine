@@ -2,13 +2,15 @@
 
 # Mesh Market
 
-Mesh Market is a serverless peer-to-peer file synchronizer for a user's own
-devices. It syncs selected folders directly between paired devices without a
-central storage service or application-owned discovery server.
+**Serverless file sync — including peer discovery.**
 
-The project is built with Flutter and targets Android, iOS, Linux, macOS, and
-Windows. Web is not supported because the application depends on native network
-and background capabilities that browsers do not provide.
+No cloud. No relay. No application-owned servers anywhere — not even for finding peers.
+
+🔍 **LAN** — devices discover each other over mDNS multicast. Zero infrastructure.  
+🌐 **WAN** — peers are found through **BitTorrent Mainline DHT** using an infohash derived from the folder swarm secret. SDP and ICE candidates are exchanged directly over that DHT transport to negotiate a hole-punched WebRTC data channel.  
+🔒 **Every block** is sealed with XChaCha20-Poly1305 before it leaves the device. File bytes never touch DHT nodes, STUN servers, or any third party.
+
+`Flutter` · `Android` · `iOS` · `Linux` · `macOS` · `Windows`
 
 ## What It Does
 
