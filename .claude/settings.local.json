@@ -25,7 +25,8 @@
       "Bash(bash tool/build_deb.sh)",
       "Bash(ps -o lstart= -C gnome-shell)",
       "Read(//usr/share/applications/**)",
-      "Bash(nohup ./mesh_market)"
+      "Bash(nohup ./mesh_market)",
+      "Bash(just *)"
     ]
   }
 }
