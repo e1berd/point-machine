@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 class DesktopTray {
   DesktopTray({required this.iconPath, required this.onQuit});
 
-  static const appName = 'Point Machine';
+  static const appName = 'Mesh Market';
 
   final String iconPath;
   final Future<void> Function() onQuit;
@@ -63,7 +63,7 @@ class DesktopTray {
     try {
       if (!LaunchAtLogin.isSupported) return;
       final launch = LaunchAtLogin(
-        id: 'tech.hammerhead.point_machine',
+        id: 'tech.hammerhead.mesh_market',
         displayName: appName,
       );
       launch.setProgram(Platform.resolvedExecutable, const ['--hidden']);

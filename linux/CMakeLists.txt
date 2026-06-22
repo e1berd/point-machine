@@ -4,10 +4,10 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "point_machine")
+set(BINARY_NAME "mesh_market")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "tech.hammerhead.point_machine")
+set(APPLICATION_ID "tech.hammerhead.mesh_market")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -128,9 +128,9 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
 endif()
 
 # Install the .desktop file.
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/runner/point_machine.desktop"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/runner/mesh_market.desktop"
   DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)
 
 # Install the application icon.
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/runner/point_machine.png"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/runner/mesh_market.png"
   DESTINATION "${INSTALL_BUNDLE_DATA_DIR}" COMPONENT Runtime)

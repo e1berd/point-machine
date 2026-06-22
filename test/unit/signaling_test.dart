@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:point_machine/transport/lan_signaling.dart';
-import 'package:point_machine/transport/signaling.dart';
+import 'package:mesh_market/transport/lan_signaling.dart';
+import 'package:mesh_market/transport/signaling.dart';
 import 'package:test/test.dart';
 
 void main() {

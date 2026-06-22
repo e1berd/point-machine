@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:point_machine/core/identity.dart';
-import 'package:point_machine/core/pairing.dart';
+import 'package:mesh_market/core/identity.dart';
+import 'package:mesh_market/core/pairing.dart';
 import 'package:test/test.dart';
 
 void main() {

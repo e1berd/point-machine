@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:point_machine/transport/messages.dart';
-import 'package:point_machine/transport/tcp_transport.dart';
+import 'package:mesh_market/transport/messages.dart';
+import 'package:mesh_market/transport/tcp_transport.dart';
 import 'package:test/test.dart';
 
 void main() {

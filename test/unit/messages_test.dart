@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:point_machine/core/models.dart';
-import 'package:point_machine/sync/index.dart';
-import 'package:point_machine/sync/version_vector.dart';
-import 'package:point_machine/transport/messages.dart';
+import 'package:mesh_market/core/models.dart';
+import 'package:mesh_market/sync/index.dart';
+import 'package:mesh_market/sync/version_vector.dart';
+import 'package:mesh_market/transport/messages.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,4 +1,4 @@
-# point-machine
+# mesh-market
 
 Serverless peer-to-peer file synchronizer — a Syncthing alternative. Files sync directly
 between a user's own devices with **no server of ours anywhere**, including for discovery.

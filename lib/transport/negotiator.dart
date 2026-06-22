@@ -37,7 +37,7 @@ Future<WebRtcLink> negotiate({
 
   if (initiator) {
     watch(await connection.createDataChannel(
-      'point-machine',
+      'mesh-market',
       RTCDataChannelInit()..ordered = true,
     ));
     final offer = await connection.createOffer();

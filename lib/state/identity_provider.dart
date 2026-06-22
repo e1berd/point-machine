@@ -18,7 +18,7 @@ final identityProvider = FutureProvider<DeviceIdentity>((ref) async {
 
 final databaseProvider = FutureProvider<Database>((ref) async {
   final dir = await appDataDir();
-  return databaseFactoryIo.openDatabase(p.join(dir.path, 'point-machine.db'));
+  return databaseFactoryIo.openDatabase(p.join(dir.path, 'mesh-market.db'));
 });
 
 final deviceNameProvider = AsyncNotifierProvider<DeviceNameNotifier, String>(
@@ -68,7 +68,7 @@ class DeviceNameNotifier extends AsyncNotifier<String> {
 
 String defaultDeviceName() {
   final hostname = _hostname();
-  return _isUsableHostname(hostname) ? hostname : 'Point Machine';
+  return _isUsableHostname(hostname) ? hostname : 'Mesh Market';
 }
 
 String _hostname() {

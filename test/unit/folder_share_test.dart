@@ -1,4 +1,4 @@
-import 'package:point_machine/core/folder_share.dart';
+import 'package:mesh_market/core/folder_share.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -17,7 +17,7 @@ AppLifecycleListener? _desktopLifecycle;
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   await loadInitialConfig();
-  runApp(const ProviderScope(child: PointMachineApp()));
+  runApp(const ProviderScope(child: MeshMarketApp()));
   if (Platform.isAndroid) {
     unawaited(FlutterDisplayMode.setHighRefreshRate());
   }

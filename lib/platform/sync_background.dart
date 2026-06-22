@@ -59,7 +59,7 @@ class _BackgroundBridge {
       service.on('setAsBackground').listen((_) => android.setAsBackgroundService());
       service.on('updateNotification').listen((event) {
         android.setForegroundNotificationInfo(
-          title: event?['title'] as String? ?? 'Point Machine',
+          title: event?['title'] as String? ?? 'Mesh Market',
           content: event?['content'] as String? ?? 'Sync is active',
         );
       });

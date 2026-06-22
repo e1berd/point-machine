@@ -53,22 +53,22 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "Point Machine");
+    gtk_header_bar_set_title(header_bar, "Mesh Market");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "Point Machine");
+    gtk_window_set_title(window, "Mesh Market");
   }
 
   gtk_window_set_default_size(window, 1280, 720);
 
-  gtk_window_set_default_icon_name("tech.hammerhead.point_machine");
+  gtk_window_set_default_icon_name("tech.hammerhead.mesh_market");
 
   g_autoptr(GError) icon_error = nullptr;
   g_autofree gchar* exe_dir =
       g_path_get_dirname("/proc/self/exe");
   g_autofree gchar* icon_path =
-      g_build_filename(exe_dir, "data", "point_machine.png", nullptr);
+      g_build_filename(exe_dir, "data", "mesh_market.png", nullptr);
   if (g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
     gtk_window_set_default_icon_from_file(icon_path, &icon_error);
   }

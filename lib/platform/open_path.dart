@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
-const _channel = MethodChannel('tech.hammerhead.point_machine/open_path');
+const _channel = MethodChannel('tech.hammerhead.mesh_market/open_path');
 
 Future<bool> openFolderInFileManager(String path) async {
   final directory = Directory(path);

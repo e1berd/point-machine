@@ -3,14 +3,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:point_machine/crypto/aead.dart';
-import 'package:point_machine/sync/engine.dart';
-import 'package:point_machine/sync/index.dart';
-import 'package:point_machine/sync/scanner.dart';
-import 'package:point_machine/sync/sync_event.dart';
-import 'package:point_machine/storage/file_store.dart';
-import 'package:point_machine/transport/messages.dart';
-import 'package:point_machine/transport/peer_link.dart';
+import 'package:mesh_market/crypto/aead.dart';
+import 'package:mesh_market/sync/engine.dart';
+import 'package:mesh_market/sync/index.dart';
+import 'package:mesh_market/sync/scanner.dart';
+import 'package:mesh_market/sync/sync_event.dart';
+import 'package:mesh_market/storage/file_store.dart';
+import 'package:mesh_market/transport/messages.dart';
+import 'package:mesh_market/transport/peer_link.dart';
 import 'package:sembast/sembast_memory.dart';
 import 'package:test/test.dart';
 
@@ -69,7 +69,7 @@ void main() {
   }
 
   test('copies a new file from one peer to the other', () async {
-    File('${dirA.path}/notes.txt').writeAsStringSync('hello point machine');
+    File('${dirA.path}/notes.txt').writeAsStringSync('hello mesh market');
     final (engineA, indexA, _) = await engine('A', dirA);
     final (engineB, indexB, storeB) = await engine('B', dirB);
     await FolderScanner(deviceId: 'A', index: indexA, store: IoFileStore(dirA)).scan();
@@ -85,7 +85,7 @@ void main() {
 
     expect(arrived, isTrue);
     expect(File('${dirB.path}/notes.txt').readAsStringSync(),
-        equals('hello point machine'));
+        equals('hello mesh market'));
   });
 
   test('propagates an update without resending unchanged data', () async {

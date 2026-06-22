@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:point_machine/transport/messages.dart';
-import 'package:point_machine/transport/peer_link.dart';
-import 'package:point_machine/transport/sync_transport.dart';
+import 'package:mesh_market/transport/messages.dart';
+import 'package:mesh_market/transport/peer_link.dart';
+import 'package:mesh_market/transport/sync_transport.dart';
 import 'package:test/test.dart';
 
 class _FakeLink implements PeerLink {

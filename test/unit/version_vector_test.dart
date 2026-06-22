@@ -1,4 +1,4 @@
-import 'package:point_machine/sync/version_vector.dart';
+import 'package:mesh_market/sync/version_vector.dart';
 import 'package:test/test.dart';
 
 void main() {

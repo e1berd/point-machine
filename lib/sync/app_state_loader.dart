@@ -69,4 +69,4 @@ Future<List<FolderConfig>> loadFolders(Directory dir) async {
 }
 
 Future<Database> loadDatabase(Directory dir) =>
-    databaseFactoryIo.openDatabase(p.join(dir.path, 'point-machine.db'));
+    databaseFactoryIo.openDatabase(p.join(dir.path, 'mesh-market.db'));

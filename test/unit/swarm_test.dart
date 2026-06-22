@@ -1,4 +1,4 @@
-import 'package:point_machine/transport/swarm.dart';
+import 'package:mesh_market/transport/swarm.dart';
 import 'package:test/test.dart';
 
 void main() {

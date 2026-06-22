@@ -1,11 +1,11 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:point_machine/app.dart';
-import 'package:point_machine/core/identity.dart';
-import 'package:point_machine/core/pairing.dart';
-import 'package:point_machine/state/identity_provider.dart';
-import 'package:point_machine/state/peers_provider.dart';
+import 'package:mesh_market/app.dart';
+import 'package:mesh_market/core/identity.dart';
+import 'package:mesh_market/core/pairing.dart';
+import 'package:mesh_market/state/identity_provider.dart';
+import 'package:mesh_market/state/peers_provider.dart';
 
 void main() {
   testWidgets('boots into the devices destination', (tester) async {
@@ -22,7 +22,7 @@ void main() {
             (ref, notifier) => const <PairingPayload>[],
           ),
         ],
-        child: const PointMachineApp(),
+        child: const MeshMarketApp(),
       ),
     );
     for (var i = 0; i < 50; i++) {

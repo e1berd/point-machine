@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=Point Machine
+Name=Mesh Market
 Comment=Serverless peer-to-peer file synchronizer
-Exec=point_machine
-Icon=tech.hammerhead.point_machine
+Exec=mesh_market
+Icon=tech.hammerhead.mesh_market
 Terminal=false
 Type=Application
 Categories=Utility;Network;FileTransfer;
-StartupWMClass=tech.hammerhead.point_machine
+StartupWMClass=tech.hammerhead.mesh_market

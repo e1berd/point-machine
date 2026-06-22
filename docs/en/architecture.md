@@ -1,4 +1,4 @@
-# point-machine — Architecture
+# mesh-market — Architecture
 
 A serverless, peer-to-peer file synchronizer (a Syncthing alternative). Files move
 directly between a user's own devices. **There is no server of ours anywhere** — not for
@@ -210,7 +210,7 @@ Riverpod (`state/`) glues the engine to the UI. Key providers:
   `nearbyDevicesProvider`, `syncActiveProvider` (schedule window).
 
 All persistent state is plain files under the app data dir (`identity.json`, `peers.json`,
-`folders.json`, `point-machine.db`) plus `SharedPreferences` for config — which is why the
+`folders.json`, `mesh-market.db`) plus `SharedPreferences` for config — which is why the
 headless bg isolate can rebuild everything from disk.
 
 ---

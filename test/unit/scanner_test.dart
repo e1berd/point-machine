@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:point_machine/sync/index.dart';
-import 'package:point_machine/sync/scanner.dart';
-import 'package:point_machine/storage/file_store.dart';
+import 'package:mesh_market/sync/index.dart';
+import 'package:mesh_market/sync/scanner.dart';
+import 'package:mesh_market/storage/file_store.dart';
 import 'package:sembast/sembast_io.dart';
 import 'package:sembast/sembast_memory.dart';
 import 'package:test/test.dart';

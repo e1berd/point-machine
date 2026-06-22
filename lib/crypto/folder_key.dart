@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
 
-const _info = 'point-machine/folder-key/v1';
+const _info = 'mesh-market/folder-key/v1';
 
 Future<SecretKey> deriveFolderKey({
   required SimpleKeyPair agreementKeyPair,

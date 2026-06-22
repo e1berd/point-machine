@@ -47,9 +47,9 @@ deb:
     set -euo pipefail
     flutter build linux --release
 
-    pkg="point-machine"
-    appid="tech.hammerhead.point_machine"
-    binary="point_machine"
+    pkg="mesh-market"
+    appid="tech.hammerhead.mesh_market"
+    binary="mesh_market"
     arch="amd64"
     version="$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')"
     bundle="build/linux/x64/release/bundle"
@@ -69,7 +69,7 @@ deb:
     cat > "$root/usr/share/applications/$appid.desktop" <<EOF
     [Desktop Entry]
     Type=Application
-    Name=Point Machine
+    Name=Mesh Market
     Comment=Serverless peer-to-peer file synchronizer
     Exec=/usr/bin/$pkg
     Icon=$appid
@@ -87,7 +87,7 @@ deb:
     Installed-Size: $(du -sk "$root/usr" | cut -f1)
     Depends: libgtk-3-0, liblzma5
     Description: Serverless peer-to-peer file synchronizer
-     Point Machine syncs files directly between your own devices with no
+     Mesh Market syncs files directly between your own devices with no
      server of ours anywhere, including for discovery.
     EOF
 
@@ -101,11 +101,11 @@ dmg:
 
     app="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)"
     version="$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')"
-    dmg="build/dmg/point-machine_${version}.dmg"
+    dmg="build/dmg/mesh-market_${version}.dmg"
 
     rm -rf build/dmg
     mkdir -p build/dmg
-    hdiutil create -volname "Point Machine" -srcfolder "$app" \
+    hdiutil create -volname "Mesh Market" -srcfolder "$app" \
       -ov -format UDZO "$dmg"
     echo "Built $dmg"
 
@@ -116,11 +116,11 @@ buy:
     case "$(uname -s)" in
      Linux)
       just deb
-      deb="build/deb/point-machine_${version}_amd64.deb"
+      deb="build/deb/mesh-market_${version}_amd64.deb"
       sudo dpkg -i "$deb" || sudo apt-get install -f -y
       sudo update-desktop-database -q 2>/dev/null || true
       sudo gtk-update-icon-cache -q /usr/share/icons/hicolor 2>/dev/null || true
-      echo "Installed point-machine $version"
+      echo "Installed mesh-market $version"
       ;;
      Darwin)
       just dmg
@@ -131,11 +131,11 @@ buy:
       ;;
      MINGW*|MSYS*|CYGWIN*|Windows*)
       flutter build windows --release
-      dest="$LOCALAPPDATA/Programs/PointMachine"
+      dest="$LOCALAPPDATA/Programs/MeshMarket"
       rm -rf "$dest"
       mkdir -p "$dest"
       cp -R build/windows/x64/runner/Release/. "$dest/"
-      echo "Installed Point Machine to $dest"
+      echo "Installed Mesh Market to $dest"
       ;;
      *)
       echo "Unsupported platform: $(uname -s)" >&2

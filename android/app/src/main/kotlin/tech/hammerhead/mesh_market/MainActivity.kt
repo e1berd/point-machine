@@ -1,4 +1,4 @@
-package tech.hammerhead.point_machine
+package tech.hammerhead.mesh_market
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -13,7 +13,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            "tech.hammerhead.point_machine/open_path"
+            "tech.hammerhead.mesh_market/open_path"
         ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "openFolder" -> result.success(openFolder(call.argument<String>("path")))

@@ -17,7 +17,7 @@ Tracked gaps and follow-ups. Phases refer to the implementation plan.
   code) wired to `incomingPairProvider`. Watching the Pair screen activates discovery.
   Strings added to `i18n/*.i18n.yaml` (regenerate with `dart run slang`).
 - [x] Cross-network pairing rendezvous: `pairByCode` / `SyncService.pairViaCode` — both devices
-  enter the same code, meet on the DHT under `hash('point-machine/pair/<code>')`, then run the
+  enter the same code, meet on the DHT under `hash('mesh-market/pair/<code>')`, then run the
   mutual pairing handshake. UI: "Pair over the internet" on the Pair screen.
 - [ ] **NAT traversal for WAN** (the real remaining limit): `pairAt`/sync use a direct TCP
   connection to the discovered endpoint, which only works when a peer is reachable (public IP,

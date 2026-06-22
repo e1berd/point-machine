@@ -25,9 +25,9 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>$(PRODUCT_COPYRIGHT)</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Point Machine uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
+	<string>Mesh Market uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Point Machine uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
+	<string>Mesh Market uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:point_machine/sync/blocks.dart';
+import 'package:mesh_market/sync/blocks.dart';
 import 'package:test/test.dart';
 
 void main() {

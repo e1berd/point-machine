@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Point Machine</string>
+	<string>Mesh Market</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>point_machine</string>
+	<string>mesh_market</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -27,9 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Point Machine uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
+	<string>Mesh Market uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Point Machine uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
+	<string>Mesh Market uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

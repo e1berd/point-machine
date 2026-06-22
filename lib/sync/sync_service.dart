@@ -237,7 +237,7 @@ class SyncService {
   Future<void> _announcePairing() async {
     try {
       final infohash = await infohashFor(
-        utf8.encode('point-machine/pair/${identity.id}'),
+        utf8.encode('mesh-market/pair/${identity.id}'),
       );
       final beacon = DhtDiscovery(
         infohash: infohash,
@@ -369,7 +369,7 @@ class SyncService {
       return true;
     }
 
-    final infohash = await infohashFor(utf8.encode('point-machine/pair/$code'));
+    final infohash = await infohashFor(utf8.encode('mesh-market/pair/$code'));
     final dht = DhtDiscovery(
       infohash: infohash,
       servicePort: _signaling.boundPort,

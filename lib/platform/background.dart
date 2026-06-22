@@ -53,7 +53,7 @@ Future<void> _initBackgroundService() async {
       autoStart: true,
       isForegroundMode: true,
       foregroundServiceNotificationId: 888,
-      initialNotificationTitle: 'Point Machine',
+      initialNotificationTitle: 'Mesh Market',
       initialNotificationContent: 'Sync is active',
     ),
     iosConfiguration: IosConfiguration(

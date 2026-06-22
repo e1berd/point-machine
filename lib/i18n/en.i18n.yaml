@@ -60,7 +60,7 @@ pair:
   toggleFlashlight: Toggle flashlight
   selfPairError: Cannot pair this device with itself
   paired: 'Device {name} paired'
-  invalidQr: This QR code is not a Point Machine device
+  invalidQr: This QR code is not a Mesh Market device
   nearbyTitle: Nearby devices
   nearbySearching: Looking for devices on your network…
   pairAction: Pair

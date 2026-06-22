@@ -7,8 +7,8 @@ import 'state/app_providers.dart';
 import 'ui/home_shell.dart';
 import 'ui/theme.dart';
 
-class PointMachineApp extends ConsumerWidget {
-  const PointMachineApp({super.key});
+class MeshMarketApp extends ConsumerWidget {
+  const MeshMarketApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +19,7 @@ class PointMachineApp extends ConsumerWidget {
     );
     return TranslationProvider(
       child: MaterialApp(
-        title: 'Point Machine',
+        title: 'Mesh Market',
         theme: pointTheme(.light, themeConfig.schemeId),
         darkTheme: pointTheme(.dark, themeConfig.schemeId),
         themeMode: themeConfig.mode,

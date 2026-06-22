@@ -1,4 +1,4 @@
-# point-machine — Архитектура
+# mesh-market — Архитектура
 
 Бессерверный peer-to-peer синхронизатор файлов (альтернатива Syncthing). Файлы передаются
 напрямую между устройствами одного пользователя. **Никакого нашего сервера нигде нет** — ни
@@ -211,7 +211,7 @@ Riverpod (`state/`) связывает движок с UI. Ключевые пр
   `nearbyDevicesProvider`, `syncActiveProvider` (окно расписания).
 
 Всё постоянное состояние — это обычные файлы в каталоге данных приложения (`identity.json`,
-`peers.json`, `folders.json`, `point-machine.db`) плюс `SharedPreferences` для конфига — именно
+`peers.json`, `folders.json`, `mesh-market.db`) плюс `SharedPreferences` для конфига — именно
 поэтому headless фоновый изолят может пересобрать всё с диска.
 
 ---

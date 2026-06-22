@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:point_machine/core/identity.dart';
-import 'package:point_machine/crypto/aead.dart';
-import 'package:point_machine/crypto/folder_key.dart';
+import 'package:mesh_market/core/identity.dart';
+import 'package:mesh_market/crypto/aead.dart';
+import 'package:mesh_market/crypto/folder_key.dart';
 import 'package:test/test.dart';
 
 File _identityFile() =>
