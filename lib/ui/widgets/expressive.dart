@@ -98,9 +98,7 @@ class ExpressivePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return AnimatedContainer(
-      duration: expressiveFastDuration,
-      curve: expressiveCurve,
+    return ExpressiveSpringContainer(
       padding: padding,
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh,
@@ -117,28 +115,114 @@ class ExpressiveSwitcher extends StatelessWidget {
   const ExpressiveSwitcher({
     super.key,
     required this.child,
-    this.duration = expressiveDuration,
+    this.alignment = Alignment.center,
+    this.duration,
   });
 
   final Widget child;
-  final Duration duration;
+  final AlignmentGeometry alignment;
+  final Duration? duration;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: duration,
-      reverseDuration: expressiveFastDuration,
-      switchInCurve: expressiveCurve,
-      switchOutCurve: expressiveExitCurve,
-      transitionBuilder: (child, animation) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: expressiveCurve,
-          reverseCurve: expressiveExitCurve,
+    return _ExpressiveSpringSwitcher(alignment: alignment, child: child);
+  }
+}
+
+class _ExpressiveSpringSwitcher extends StatefulWidget {
+  const _ExpressiveSpringSwitcher({
+    required this.child,
+    required this.alignment,
+  });
+
+  final Widget child;
+  final AlignmentGeometry alignment;
+
+  @override
+  State<_ExpressiveSpringSwitcher> createState() =>
+      _ExpressiveSpringSwitcherState();
+}
+
+class _ExpressiveSpringSwitcherState extends State<_ExpressiveSpringSwitcher>
+    with SingleTickerProviderStateMixin {
+  late final SingleMotionController _controller;
+  Widget? _currentChild;
+  Widget? _outgoingChild;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentChild = widget.child;
+    _controller = SingleMotionController(
+      motion: _springReveal.toMotion(),
+      vsync: this,
+      initialValue: 1,
+    )..addStatusListener(_handleStatusChanged);
+  }
+
+  @override
+  void didUpdateWidget(_ExpressiveSpringSwitcher oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (Widget.canUpdate(widget.child, oldWidget.child)) {
+      _currentChild = widget.child;
+      return;
+    }
+
+    _outgoingChild = _currentChild;
+    _currentChild = widget.child;
+    _controller
+      ..stop(canceled: true)
+      ..value = 0
+      ..animateTo(1);
+  }
+
+  void _handleStatusChanged(AnimationStatus status) {
+    if (status == AnimationStatus.completed && _outgoingChild != null) {
+      setState(() => _outgoingChild = null);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller
+      ..removeStatusListener(_handleStatusChanged)
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final value = _controller.value.clamp(0.0, 1.0);
+        final children = <Widget>[
+          if (_outgoingChild != null)
+            Opacity(
+              opacity: 1 - value,
+              child: Transform.scale(
+                scale: 1 + (.015 * value),
+                child: _outgoingChild,
+              ),
+            ),
+          Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, (1 - value) * 8),
+              child: Transform.scale(
+                scale: .985 + (.015 * value),
+                child: _currentChild,
+              ),
+            ),
+          ),
+        ];
+
+        return Stack(
+          alignment: widget.alignment,
+          fit: StackFit.passthrough,
+          children: children,
         );
-        return FadeTransition(opacity: curved, child: child);
       },
-      child: child,
     );
   }
 }
@@ -307,9 +391,7 @@ class ExpressiveSection extends StatelessWidget {
               ],
             ),
           ),
-          AnimatedContainer(
-            duration: expressiveFastDuration,
-            curve: expressiveCurve,
+          ExpressiveSpringContainer(
             margin: margin,
             decoration: BoxDecoration(
               color: colors.surfaceContainerHigh,
@@ -359,9 +441,7 @@ class ExpressiveIconContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return AnimatedContainer(
-      duration: expressiveFastDuration,
-      curve: expressiveCurve,
+    return ExpressiveSpringContainer(
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -461,9 +541,7 @@ class ExpressiveStatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final fg = foregroundColor ?? colors.onTertiaryContainer;
-    return AnimatedContainer(
-      duration: expressiveFastDuration,
-      curve: expressiveCurve,
+    return ExpressiveSpringContainer(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color ?? colors.tertiaryContainer,
@@ -563,6 +641,8 @@ class ExpressiveSpringContainer extends StatefulWidget {
     this.width,
     this.height,
     this.padding,
+    this.margin,
+    this.clipBehavior = Clip.none,
   });
 
   final Decoration decoration;
@@ -570,6 +650,8 @@ class ExpressiveSpringContainer extends StatefulWidget {
   final double? width;
   final double? height;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final Clip clipBehavior;
 
   @override
   State<ExpressiveSpringContainer> createState() =>
@@ -627,7 +709,9 @@ class _ExpressiveSpringContainerState extends State<ExpressiveSpringContainer>
           width: widget.width,
           height: widget.height,
           padding: widget.padding,
+          margin: widget.margin,
           decoration: current,
+          clipBehavior: widget.clipBehavior,
           child: child,
         );
       },

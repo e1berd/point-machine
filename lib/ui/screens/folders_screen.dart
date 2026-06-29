@@ -81,17 +81,8 @@ class FoldersScreen extends ConsumerWidget {
 
         if (MediaQuery.sizeOf(context).width >= expressiveMediumBreakpoint) {
           return SizedBox.expand(
-            child: AnimatedSwitcher(
-              duration: expressiveDuration,
-              reverseDuration: expressiveFastDuration,
-              switchInCurve: expressiveCurve,
-              switchOutCurve: expressiveExitCurve,
-              layoutBuilder: (currentChild, previousChildren) {
-                return Stack(
-                  alignment: Alignment.topLeft,
-                  children: [...previousChildren, ?currentChild],
-                );
-              },
+            child: ExpressiveSwitcher(
+              alignment: Alignment.topLeft,
               child: _DesktopFolderGrid(
                 key: ValueKey(list.map((folder) => folder.id).join('|')),
                 folders: list,
@@ -372,7 +363,10 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
             child: InkWell(
               onTap: () => showConflictSheet(context, folder.id),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     Icon(
@@ -381,10 +375,9 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(context.t.folders.conflicts(n: conflicts.length))
-                          .size(14)
-                          .weight(.w800)
-                          .color(colors.onErrorContainer),
+                      child: Text(
+                        context.t.folders.conflicts(n: conflicts.length),
+                      ).size(14).weight(.w800).color(colors.onErrorContainer),
                     ),
                     Icon(
                       Icons.chevron_right_rounded,

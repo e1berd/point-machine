@@ -179,8 +179,7 @@ class DevicesScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              AnimatedSwitcher(
-                duration: expressiveFastDuration,
+              ExpressiveSwitcher(
                 child: name.when(
                   data: (value) => Text(
                     value,
@@ -309,11 +308,7 @@ class _DesktopDevicesLayout extends ConsumerWidget {
                           title: context.t.devices.empty,
                           message: context.t.devices.emptyHint,
                         )
-                      : AnimatedSwitcher(
-                          duration: expressiveDuration,
-                          reverseDuration: expressiveFastDuration,
-                          switchInCurve: expressiveCurve,
-                          switchOutCurve: expressiveExitCurve,
+                      : ExpressiveSwitcher(
                           child: _DesktopPeerList(
                             key: ValueKey(
                               items.map((peer) => peer.deviceId).join('|'),

@@ -661,8 +661,7 @@ class _PaletteCardState extends State<_PaletteCard>
                                       compact: compact,
                                     ),
                                     const Spacer(),
-                                    AnimatedSwitcher(
-                                      duration: expressiveFastDuration,
+                                    ExpressiveSwitcher(
                                       child: selected
                                           ? Icon(
                                               Icons.check_circle_rounded,
