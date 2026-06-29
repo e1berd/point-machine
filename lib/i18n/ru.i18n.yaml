@@ -142,6 +142,11 @@ activity:
   liveComplete: Все файлы синхронизированы
   livePreparing: Подготовка
   liveFiles: '{done} из {total} файлов'
+  options: Действия
+  actionReconnect: Переподключиться
+  actionResolve: Разрешить конфликт
+  actionReveal: Показать в папке
+  revealFailed: Не удалось открыть папку
   eventConnecting: Подключение
   eventConnected: Подключено
   eventDisconnected: Отключено
@@ -158,14 +163,27 @@ schedule:
   title: Синхронизация
   syncNow: Синхронизировать сейчас
   syncNowHint: Включить синхронизацию немедленно, пока не выключите
-  scheduleTitle: Ежедневное расписание
-  scheduleHint: Синхронизировать каждый день в этом окне
-  from: С
-  to: До
+  scheduleTitle: Расписание
+  scheduleHint: Синхронизировать только в заданные дни и окна времени
+  repeat: Повтор
+  repeatDays: Дни
+  repeatMonths: Месяцы
+  every: Каждые
+  window: Окно синхронизации
+  minutes: '{n} мин'
+  timesTitle: Время запуска
+  addTime: Добавить время
   active: Идёт синхронизация
   paused: На паузе
 
 settings:
+  appearanceSubtitle: Тема, цвет и язык
+  syncTitle: Синхронизация
+  syncSubtitle: Расписание и окно синхронизации
+  discoverySubtitle: Как устройства находят друг друга
+  logsSubtitle: Файл логов и история
+  signalingSubtitle: Ретрансляция через STUN / TURN
+
   appearance: Внешний вид
   languageTitle: Язык
   languageSubtitle: Язык интерфейса

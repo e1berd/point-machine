@@ -136,6 +136,11 @@ activity:
   liveComplete: All files synced
   livePreparing: Preparing
   liveFiles: '{done} of {total} files'
+  options: Options
+  actionReconnect: Reconnect
+  actionResolve: Resolve conflict
+  actionReveal: Show in folder
+  revealFailed: Could not open the folder
   eventConnecting: Connecting
   eventConnected: Connected
   eventDisconnected: Disconnected
@@ -152,14 +157,27 @@ schedule:
   title: Synchronization
   syncNow: Sync now
   syncNowHint: Sync immediately until you turn it off
-  scheduleTitle: Daily schedule
-  scheduleHint: Sync every day during this window
-  from: From
-  to: To
+  scheduleTitle: Schedule
+  scheduleHint: Sync only on selected days and time windows
+  repeat: Repeat
+  repeatDays: Days
+  repeatMonths: Months
+  every: Every
+  window: Sync window
+  minutes: '{n} min'
+  timesTitle: Start times
+  addTime: Add time
   active: Syncing now
   paused: Paused
 
 settings:
+  appearanceSubtitle: Theme, colour and language
+  syncTitle: Synchronization
+  syncSubtitle: Schedule and sync window
+  discoverySubtitle: How your devices find each other
+  logsSubtitle: Log file and history
+  signalingSubtitle: STUN / TURN relay servers
+
   appearance: Appearance
   languageTitle: Language
   languageSubtitle: Interface language

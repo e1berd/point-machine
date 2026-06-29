@@ -131,6 +131,9 @@ class SyncHost {
     _service?.rescanFolder(folderId);
   }
 
+  void redial(String folderId, String peerId) =>
+      _service?.redial(folderId, peerId);
+
   void setSyncActive(bool active) => _service?.setSyncActive(active);
 
   Future<void> stop() async {

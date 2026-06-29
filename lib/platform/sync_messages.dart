@@ -12,6 +12,7 @@ const msgReloadPeers = 'pm.reloadPeers';
 const msgReloadFolders = 'pm.reloadFolders';
 const msgReloadConfig = 'pm.reloadConfig';
 const msgRescan = 'pm.rescan';
+const msgRedial = 'pm.redial';
 const msgResolve = 'pm.resolve';
 const msgRpc = 'pm.rpc';
 

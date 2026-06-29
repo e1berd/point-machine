@@ -87,6 +87,10 @@ class LocalSyncController implements SyncController {
   Future<void> rescan(String folderId) => _host.rescan(folderId);
 
   @override
+  Future<void> redial(String folderId, String peerId) async =>
+      _host.redial(folderId, peerId);
+
+  @override
   Future<bool> pairAt(InternetAddress address, int port) =>
       _host.service.pairAt(address, port);
   @override

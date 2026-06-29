@@ -16,14 +16,17 @@ AppLifecycleListener? _desktopLifecycle;
 
 Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
-  await loadInitialConfig();
+  final initialConfig = await loadInitialConfig();
   runApp(const ProviderScope(child: MeshMarketApp()));
   if (Platform.isAndroid) {
     unawaited(FlutterDisplayMode.setHighRefreshRate());
   }
   WidgetsBinding.instance.addPostFrameCallback((_) async {
     await _desktopTray?.dispose();
-    final tray = await setupBackground(onQuit: () async {});
+    final tray = await setupBackground(
+      onQuit: () async {},
+      syncInBackground: initialConfig.syncInBackground,
+    );
     if (tray != null) {
       _desktopLifecycle?.dispose();
       _desktopLifecycle = attachDesktopLifecycle(

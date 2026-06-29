@@ -244,6 +244,11 @@ class _Translations$activity$ru implements Translations$activity$en {
 	@override String get liveComplete => 'Все файлы синхронизированы';
 	@override String get livePreparing => 'Подготовка';
 	@override String liveFiles({required Object done, required Object total}) => '${done} из ${total} файлов';
+	@override String get options => 'Действия';
+	@override String get actionReconnect => 'Переподключиться';
+	@override String get actionResolve => 'Разрешить конфликт';
+	@override String get actionReveal => 'Показать в папке';
+	@override String get revealFailed => 'Не удалось открыть папку';
 	@override String get eventConnecting => 'Подключение';
 	@override String get eventConnected => 'Подключено';
 	@override String get eventDisconnected => 'Отключено';
@@ -267,10 +272,16 @@ class _Translations$schedule$ru implements Translations$schedule$en {
 	@override String get title => 'Синхронизация';
 	@override String get syncNow => 'Синхронизировать сейчас';
 	@override String get syncNowHint => 'Включить синхронизацию немедленно, пока не выключите';
-	@override String get scheduleTitle => 'Ежедневное расписание';
-	@override String get scheduleHint => 'Синхронизировать каждый день в этом окне';
-	@override String get from => 'С';
-	@override String get to => 'До';
+	@override String get scheduleTitle => 'Расписание';
+	@override String get scheduleHint => 'Синхронизировать только в заданные дни и окна времени';
+	@override String get repeat => 'Повтор';
+	@override String get repeatDays => 'Дни';
+	@override String get repeatMonths => 'Месяцы';
+	@override String get every => 'Каждые';
+	@override String get window => 'Окно синхронизации';
+	@override String minutes({required Object n}) => '${n} мин';
+	@override String get timesTitle => 'Время запуска';
+	@override String get addTime => 'Добавить время';
 	@override String get active => 'Идёт синхронизация';
 	@override String get paused => 'На паузе';
 }
@@ -282,6 +293,12 @@ class _Translations$settings$ru implements Translations$settings$en {
 	final TranslationsRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get appearanceSubtitle => 'Тема, цвет и язык';
+	@override String get syncTitle => 'Синхронизация';
+	@override String get syncSubtitle => 'Расписание и окно синхронизации';
+	@override String get discoverySubtitle => 'Как устройства находят друг друга';
+	@override String get logsSubtitle => 'Файл логов и история';
+	@override String get signalingSubtitle => 'Ретрансляция через STUN / TURN';
 	@override String get appearance => 'Внешний вид';
 	@override String get languageTitle => 'Язык';
 	@override String get languageSubtitle => 'Язык интерфейса';
@@ -498,6 +515,11 @@ extension on TranslationsRu {
 			'activity.liveComplete' => 'Все файлы синхронизированы',
 			'activity.livePreparing' => 'Подготовка',
 			'activity.liveFiles' => ({required Object done, required Object total}) => '${done} из ${total} файлов',
+			'activity.options' => 'Действия',
+			'activity.actionReconnect' => 'Переподключиться',
+			'activity.actionResolve' => 'Разрешить конфликт',
+			'activity.actionReveal' => 'Показать в папке',
+			'activity.revealFailed' => 'Не удалось открыть папку',
 			'activity.eventConnecting' => 'Подключение',
 			'activity.eventConnected' => 'Подключено',
 			'activity.eventDisconnected' => 'Отключено',
@@ -512,12 +534,24 @@ extension on TranslationsRu {
 			'schedule.title' => 'Синхронизация',
 			'schedule.syncNow' => 'Синхронизировать сейчас',
 			'schedule.syncNowHint' => 'Включить синхронизацию немедленно, пока не выключите',
-			'schedule.scheduleTitle' => 'Ежедневное расписание',
-			'schedule.scheduleHint' => 'Синхронизировать каждый день в этом окне',
-			'schedule.from' => 'С',
-			'schedule.to' => 'До',
+			'schedule.scheduleTitle' => 'Расписание',
+			'schedule.scheduleHint' => 'Синхронизировать только в заданные дни и окна времени',
+			'schedule.repeat' => 'Повтор',
+			'schedule.repeatDays' => 'Дни',
+			'schedule.repeatMonths' => 'Месяцы',
+			'schedule.every' => 'Каждые',
+			'schedule.window' => 'Окно синхронизации',
+			'schedule.minutes' => ({required Object n}) => '${n} мин',
+			'schedule.timesTitle' => 'Время запуска',
+			'schedule.addTime' => 'Добавить время',
 			'schedule.active' => 'Идёт синхронизация',
 			'schedule.paused' => 'На паузе',
+			'settings.appearanceSubtitle' => 'Тема, цвет и язык',
+			'settings.syncTitle' => 'Синхронизация',
+			'settings.syncSubtitle' => 'Расписание и окно синхронизации',
+			'settings.discoverySubtitle' => 'Как устройства находят друг друга',
+			'settings.logsSubtitle' => 'Файл логов и история',
+			'settings.signalingSubtitle' => 'Ретрансляция через STUN / TURN',
 			'settings.appearance' => 'Внешний вид',
 			'settings.languageTitle' => 'Язык',
 			'settings.languageSubtitle' => 'Язык интерфейса',

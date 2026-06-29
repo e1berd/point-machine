@@ -84,6 +84,9 @@ class RemoteSyncController implements SyncController {
   @override
   Future<void> rescan(String folderId) async =>
       _service.invoke(msgRescan, {'folderId': folderId});
+  @override
+  Future<void> redial(String folderId, String peerId) async =>
+      _service.invoke(msgRedial, {'folderId': folderId, 'peerId': peerId});
 
   @override
   Future<bool> pairAt(InternetAddress address, int port) async =>

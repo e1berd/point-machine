@@ -15,6 +15,7 @@ bool get _isMobile => Platform.isAndroid || Platform.isIOS;
 
 Future<DesktopTray?> setupBackground({
   required Future<void> Function() onQuit,
+  required bool syncInBackground,
 }) async {
   if (_isDesktop) {
     final tray = DesktopTray(
@@ -30,18 +31,20 @@ Future<DesktopTray?> setupBackground({
   }
 
   if (_isMobile) {
-    await _initBackgroundService();
+    await _initBackgroundService(syncInBackground: syncInBackground);
   }
 
   return null;
 }
 
-Future<void> _initBackgroundService() async {
+Future<void> _initBackgroundService({required bool syncInBackground}) async {
   if (Platform.isAndroid) {
     try {
       await Permission.notification.request();
     } on Object catch (error, stack) {
-      debugPrint('[pm.bg] notification permission request failed: $error\n$stack');
+      debugPrint(
+        '[pm.bg] notification permission request failed: $error\n$stack',
+      );
     }
     try {
       await [
@@ -51,7 +54,9 @@ Future<void> _initBackgroundService() async {
         Permission.nearbyWifiDevices,
       ].request();
     } on Object catch (error, stack) {
-      debugPrint('[pm.bg] connectivity permission request failed: $error\n$stack');
+      debugPrint(
+        '[pm.bg] connectivity permission request failed: $error\n$stack',
+      );
     }
   }
 
@@ -60,18 +65,20 @@ Future<void> _initBackgroundService() async {
   await service.configure(
     androidConfiguration: AndroidConfiguration(
       onStart: syncBackgroundEntry,
-      autoStart: true,
+      autoStart: syncInBackground,
       isForegroundMode: true,
       foregroundServiceNotificationId: 888,
       initialNotificationTitle: 'Mesh Market',
       initialNotificationContent: 'Sync is active',
     ),
     iosConfiguration: IosConfiguration(
-      autoStart: true,
+      autoStart: syncInBackground,
       onForeground: syncBackgroundEntry,
       onBackground: (_) => true,
     ),
   );
+
+  if (!syncInBackground) await stopBackgroundService();
 }
 
 Future<void> startBackgroundService() async {
@@ -100,9 +107,6 @@ Future<void> updateBackgroundNotification({
   final service = FlutterBackgroundService();
   final isRunning = await service.isRunning();
   if (isRunning) {
-    service.invoke('updateNotification', {
-      'title': title,
-      'content': content,
-    });
+    service.invoke('updateNotification', {'title': title, 'content': content});
   }
 }

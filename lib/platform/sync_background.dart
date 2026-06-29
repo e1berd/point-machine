@@ -48,6 +48,12 @@ class _BackgroundBridge {
     service.on(msgReloadFolders).listen((_) => _host.reloadFolders());
     service.on(msgReloadConfig).listen((_) => _host.restart());
     service.on(msgRescan).listen((d) => _host.rescan(d?['folderId'] as String));
+    service.on(msgRedial).listen(
+      (d) => _host.redial(
+        d?['folderId'] as String,
+        d?['peerId'] as String,
+      ),
+    );
     service.on(msgResolve).listen(_onResolve);
     service.on(msgRpc).listen(_onRpc);
   }

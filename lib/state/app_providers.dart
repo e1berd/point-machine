@@ -8,6 +8,7 @@ import '../core/config.dart';
 import '../i18n/strings.g.dart';
 
 const _prefsKey = 'app_config';
+final _epoch = DateTime(1970);
 
 SharedPreferences? _initialPrefs;
 AppConfig? _initialConfig;
@@ -136,11 +137,38 @@ class ConfigNotifier extends Notifier<AppConfig> {
     _save();
   }
 
-  void setSchedule(int startMinutes, int endMinutes) {
+  void setScheduleCadence(SyncScheduleUnit unit, int every) {
     state = state.copyWith(
-      scheduleStart: startMinutes,
-      scheduleEnd: endMinutes,
+      scheduleUnit: unit,
+      scheduleEvery: every < 1 ? 1 : every,
+      scheduleAnchorDay: _localEpochDay(DateTime.now()),
     );
+    _save();
+  }
+
+  void setScheduleWindow(int minutes) {
+    state = state.copyWith(scheduleWindowMinutes: minutes < 1 ? 1 : minutes);
+    _save();
+  }
+
+  void addScheduleTime(int minutes) {
+    state = state.copyWith(
+      scheduleTimes: _normalizeTimes([...state.scheduleTimes, minutes]),
+    );
+    _save();
+  }
+
+  void updateScheduleTime(int index, int minutes) {
+    if (index < 0 || index >= state.scheduleTimes.length) return;
+    final times = [...state.scheduleTimes]..[index] = minutes;
+    state = state.copyWith(scheduleTimes: _normalizeTimes(times));
+    _save();
+  }
+
+  void removeScheduleTime(int index) {
+    if (index < 0 || index >= state.scheduleTimes.length) return;
+    final times = [...state.scheduleTimes]..removeAt(index);
+    state = state.copyWith(scheduleTimes: _normalizeTimes(times));
     _save();
   }
 
@@ -158,6 +186,18 @@ class ConfigNotifier extends Notifier<AppConfig> {
     state = state.copyWith(iceServers: [...state.iceServers]..removeAt(index));
     _save();
   }
+}
+
+List<int> _normalizeTimes(List<int> values) {
+  final times = {
+    for (final value in values) value.clamp(0, 1439).toInt(),
+  }.toList()..sort();
+  return times.isEmpty ? const [720] : times;
+}
+
+int _localEpochDay(DateTime date) {
+  final localDate = DateTime(date.year, date.month, date.day);
+  return localDate.difference(_epoch).inDays;
 }
 
 AppConfig _readConfig(SharedPreferences prefs) {

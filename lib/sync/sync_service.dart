@@ -475,6 +475,25 @@ class SyncService {
     if (folder != null) await _rescan(folder);
   }
 
+  void redial(String folderId, String peerId) {
+    final folder = _folderById(folderId);
+    if (folder == null || !folder.config.peerIds.contains(peerId)) return;
+    _lastSynced.remove(_syncKey(peerId, folderId));
+    _log('redial "${folder.config.label}" -> $peerId');
+    final lan = _seen[peerId];
+    if (lan != null && _canStart(peerId, folderId)) {
+      unawaited(_dial(lan.address, lan.port, folder, syncPort: lan.syncPort));
+    }
+    final peer = _peerById(peerId);
+    if (peer == null) return;
+    if (_offlineEnabled && _canStart(peerId, folderId)) {
+      unawaited(_dialOffline(peer, folder));
+    }
+    if (config.peerRelay && _canStart(peerId, folderId)) {
+      unawaited(_dialRelay(folder, peer));
+    }
+  }
+
   Future<void> _rescan(FolderRuntime folder) async {
     await FolderScanner(
       deviceId: identity.id,

@@ -38,6 +38,7 @@ abstract class SyncController {
 
   Future<int> folderSize(String folderId);
   Future<void> rescan(String folderId);
+  Future<void> redial(String folderId, String peerId);
 
   Future<bool> pairAt(InternetAddress address, int port);
   Future<bool> pairViaCode(String code);

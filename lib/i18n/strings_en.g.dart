@@ -475,6 +475,21 @@ class Translations$activity$en {
 	/// en: '{done} of {total} files'
 	String liveFiles({required Object done, required Object total}) => '${done} of ${total} files';
 
+	/// en: 'Options'
+	String get options => 'Options';
+
+	/// en: 'Reconnect'
+	String get actionReconnect => 'Reconnect';
+
+	/// en: 'Resolve conflict'
+	String get actionResolve => 'Resolve conflict';
+
+	/// en: 'Show in folder'
+	String get actionReveal => 'Show in folder';
+
+	/// en: 'Could not open the folder'
+	String get revealFailed => 'Could not open the folder';
+
 	/// en: 'Connecting'
 	String get eventConnecting => 'Connecting';
 
@@ -526,17 +541,35 @@ class Translations$schedule$en {
 	/// en: 'Sync immediately until you turn it off'
 	String get syncNowHint => 'Sync immediately until you turn it off';
 
-	/// en: 'Daily schedule'
-	String get scheduleTitle => 'Daily schedule';
+	/// en: 'Schedule'
+	String get scheduleTitle => 'Schedule';
 
-	/// en: 'Sync every day during this window'
-	String get scheduleHint => 'Sync every day during this window';
+	/// en: 'Sync only on selected days and time windows'
+	String get scheduleHint => 'Sync only on selected days and time windows';
 
-	/// en: 'From'
-	String get from => 'From';
+	/// en: 'Repeat'
+	String get repeat => 'Repeat';
 
-	/// en: 'To'
-	String get to => 'To';
+	/// en: 'Days'
+	String get repeatDays => 'Days';
+
+	/// en: 'Months'
+	String get repeatMonths => 'Months';
+
+	/// en: 'Every'
+	String get every => 'Every';
+
+	/// en: 'Sync window'
+	String get window => 'Sync window';
+
+	/// en: '{n} min'
+	String minutes({required Object n}) => '${n} min';
+
+	/// en: 'Start times'
+	String get timesTitle => 'Start times';
+
+	/// en: 'Add time'
+	String get addTime => 'Add time';
 
 	/// en: 'Syncing now'
 	String get active => 'Syncing now';
@@ -552,6 +585,24 @@ class Translations$settings$en {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// en: 'Theme, colour and language'
+	String get appearanceSubtitle => 'Theme, colour and language';
+
+	/// en: 'Synchronization'
+	String get syncTitle => 'Synchronization';
+
+	/// en: 'Schedule and sync window'
+	String get syncSubtitle => 'Schedule and sync window';
+
+	/// en: 'How your devices find each other'
+	String get discoverySubtitle => 'How your devices find each other';
+
+	/// en: 'Log file and history'
+	String get logsSubtitle => 'Log file and history';
+
+	/// en: 'STUN / TURN relay servers'
+	String get signalingSubtitle => 'STUN / TURN relay servers';
 
 	/// en: 'Appearance'
 	String get appearance => 'Appearance';
@@ -912,6 +963,11 @@ extension on Translations {
 			'activity.liveComplete' => 'All files synced',
 			'activity.livePreparing' => 'Preparing',
 			'activity.liveFiles' => ({required Object done, required Object total}) => '${done} of ${total} files',
+			'activity.options' => 'Options',
+			'activity.actionReconnect' => 'Reconnect',
+			'activity.actionResolve' => 'Resolve conflict',
+			'activity.actionReveal' => 'Show in folder',
+			'activity.revealFailed' => 'Could not open the folder',
 			'activity.eventConnecting' => 'Connecting',
 			'activity.eventConnected' => 'Connected',
 			'activity.eventDisconnected' => 'Disconnected',
@@ -926,12 +982,24 @@ extension on Translations {
 			'schedule.title' => 'Synchronization',
 			'schedule.syncNow' => 'Sync now',
 			'schedule.syncNowHint' => 'Sync immediately until you turn it off',
-			'schedule.scheduleTitle' => 'Daily schedule',
-			'schedule.scheduleHint' => 'Sync every day during this window',
-			'schedule.from' => 'From',
-			'schedule.to' => 'To',
+			'schedule.scheduleTitle' => 'Schedule',
+			'schedule.scheduleHint' => 'Sync only on selected days and time windows',
+			'schedule.repeat' => 'Repeat',
+			'schedule.repeatDays' => 'Days',
+			'schedule.repeatMonths' => 'Months',
+			'schedule.every' => 'Every',
+			'schedule.window' => 'Sync window',
+			'schedule.minutes' => ({required Object n}) => '${n} min',
+			'schedule.timesTitle' => 'Start times',
+			'schedule.addTime' => 'Add time',
 			'schedule.active' => 'Syncing now',
 			'schedule.paused' => 'Paused',
+			'settings.appearanceSubtitle' => 'Theme, colour and language',
+			'settings.syncTitle' => 'Synchronization',
+			'settings.syncSubtitle' => 'Schedule and sync window',
+			'settings.discoverySubtitle' => 'How your devices find each other',
+			'settings.logsSubtitle' => 'Log file and history',
+			'settings.signalingSubtitle' => 'STUN / TURN relay servers',
 			'settings.appearance' => 'Appearance',
 			'settings.languageTitle' => 'Language',
 			'settings.languageSubtitle' => 'Interface language',
