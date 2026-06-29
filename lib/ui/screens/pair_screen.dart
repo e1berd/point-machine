@@ -119,7 +119,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
           _yourCode(context, device.id),
           _remote(context, device.id),
           _scanButton(context, device.id),
-          _nfcButton(context, device.id),
+          _nfcButton(context, PairingPayload.ofDevice(device, deviceName)),
           _nearbySection(context, device.id),
         ],
       ),
@@ -506,14 +506,14 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     size: .md,
   );
 
-  Widget _nfcButton(BuildContext context, String selfId) {
+  Widget _nfcButton(BuildContext context, PairingPayload self) {
     final support = ref.watch(transportSupportProvider).value;
     final config = ref.watch(configProvider);
     if (support == null || !support.nfc || !config.nfcPairing) {
       return const SizedBox.shrink();
     }
     return M3EButton.icon(
-      onPressed: () => _pairViaNfc(context, selfId),
+      onPressed: () => _pairViaNfc(context, self),
       icon: const Icon(Icons.nfc_rounded),
       label: Text(context.t.pair.nfcButton),
       style: M3EButtonStyle.outlined,
@@ -521,12 +521,12 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     );
   }
 
-  Future<void> _pairViaNfc(BuildContext context, String selfId) async {
+  Future<void> _pairViaNfc(BuildContext context, PairingPayload self) async {
     context.showSnackBar(context.t.pair.nfcWaiting);
     try {
-      final peer = await const NfcPairing().read();
+      final peer = await const NfcPairing().shareAndRead(self);
       if (!context.mounted) return;
-      if (peer.deviceId == selfId) {
+      if (peer.deviceId == self.deviceId) {
         context.showSnackBar(context.t.pair.selfPairError);
         return;
       }
@@ -586,7 +586,6 @@ class _PairScreenState extends ConsumerState<PairScreen> {
       if (context.mounted) context.showSnackBar(context.t.pair.invalidQr);
     }
   }
-
 }
 
 class _PairingScannerPage extends StatefulWidget {
